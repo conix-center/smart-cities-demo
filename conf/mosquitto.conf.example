@@ -1,0 +1,11 @@
+listener 1883
+allow_anonymous true
+
+connection conix-bridge
+address stream.conixdb.io:8883
+topic # out 0
+topic # in 0
+bridge_capath /etc/ssl/certs/
+start_type automatic
+remote_password password
+remote_username username
