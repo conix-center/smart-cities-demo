@@ -16,24 +16,61 @@ class TimescalePoster:
     tableObj - a dict of key/value pairs to insert
     """
     def insertData(self, tableName, timeStamp, tableObj):
-        cursor = connection.cursor()
+        cols = ""
+        vals = ""
+        for key in tableObj: 
+            cols = cols + ", %s"
+            vals = vals + ", %s"
 
+        nameList = []
+        valList = []
+        nameList.append(tableName)
+        for key in tableObj:
+            nameList.append(key)
+            valList.append(tableObj[key])
+
+        nameList = nameList + valList
+
+        cursor = self.connection.cursor()
         try:
-            cursor.execute("INSERT INTO %s (TIMESTAMP" + cols + ") VALUES (%s", nameList)
+            cursor.execute("INSERT INTO %s (TIMESTAMP" + cols + ") VALUES (%s", vals + ")", nameList)
+            print('posted successfully!')
+            self.connection.commit()
         except psycopg2.Error as e:
-            print("CREATE TABLE Error: %s".format(e))
+            cursor.close();
+            print("Insert Error: %s".format(e))
+            //was this error due to adding a field?
+            if e == something:
+                print("Attempting to alter table!")
+                #column_name = err.toString().split("\"")[1];
+                columnName = ""
 
-        self.connection.commit()
+                params = []
+                t = self.__getType(tableObj[columnName]);
+                if(t is not 'err') {
+                    params.append(tableName);
+                    params.append(columnkName);
+                    params.append(t);
+                } else {
+                    print('Error with field %s'.format(columnName))
+                    print('Table alteration failed')
+                    return
+                }
+                
+                print(params)
+                cursor = self.connection.cursor()
+                try:
+                    cursor.execute("ALTER TABLE %s ADD COLUMN %s %s", params)
+                except psycopg2.Error as e:
+                    print("Failed to alter table with error e".format(e))
 
-
-    """
-    Add a column to a table
-    Takes:
-    tableName - string of the table being inserted into
-    tableObj - a dict of key/value pairs to add
-    """
-    def addColumn(self, tableName, tableObj):
-        pass
+                print("Table alteration succeeded - attempting to insert again")
+                try:
+                    self.insertData(tableName, timeStamp, tableObj)
+                    print('posted successfully!')
+                    self.connection.commit()
+                except:
+                    print("Unexpected error when reinserted!")
 
     def __getType(self, value):
         t = type(value)
@@ -85,7 +122,7 @@ class TimescalePoster:
             else:
                 print('Error with object %s at key %s with value %s'.format(tableObj, key, tableObj[key]))
 
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
 
         try:
             cursor.execute("CREATE TABLE %s (TIMESTAMP TIMESTAMPTZ NOT NULL" + cols + ")", nameList)
@@ -100,5 +137,11 @@ class TimescalePoster:
     tableName - name of the table
     """
     def tableExists(self, tableName):
-        pass
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)",tableName)
+        except psycopg2.Error as e:
+            return False
+
+        return True
 
