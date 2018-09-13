@@ -1,0 +1,8 @@
+MQTTBroker = "tcp://broker.host:1883"
+MQTTUser = "username"
+MQTTPass = "password"
+WAVEAgent = "localhost:410"
+WAVEEntity = "register.ent"
+Namespace = "GyAHBqhwQ9hEYEYArz0vUhHsUmMT6NC9TdoA2mhH5-DGoA=="
+Pset = "GyAa2eh0Ksh4eYdmHiAVuU7Hf2tyy06QbkrLke1ho0WS_Q=="
+RegistrationTopic = "register"
