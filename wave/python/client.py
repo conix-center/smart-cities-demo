@@ -7,7 +7,8 @@ import base64
 import grpc
 
 # use this pset
-smarthome_pset = bytes("GyAa3XjbDc-S_YoGCW-jXvX5qSmi_BexVDiFE0AdnpbkmA==", "utf8")
+pset = bytes("GyAa2eh0Ksh4eYdmHiAVuU7Hf2tyy06QbkrLke1ho0WS_Q==", "utf8")
+smart_cities_namespace = bytes("GyAHBqhwQ9hEYEYArz0vUhHsUmMT6NC9TdoA2mhH5-DGoA==", "utf8")
 
 """
 **NOTE**: WAVE is pretty general; below I describe a particular application/interpretation of its features towards the pub/sub task
@@ -75,6 +76,13 @@ class Client:
         """
         return self.entity.hash
 
+    @property
+    def b64hash(self):
+        """
+        Return the base64, url-safe encoding of the hash of the client's entity
+        """
+        return str(b64encode(self.hash), 'utf8')
+
     def createOrLoadEntity(self, name):
         """
         Check if we have already created an entity (maybe we reset the notebook kernel)
@@ -107,6 +115,8 @@ class Client:
         uripattern: string
         permissions is a list of permissions
         """
+        namespace = self.parsehash(namespace)
+        entityhash = self.parsehash(entityhash)
 
         # grants the permission to access the uri
         resp = self.agent.CreateAttestation(wave3.CreateAttestationParams(
@@ -118,7 +128,7 @@ class Client:
                 indirections=5,
                 statements=[
                     wave3.RTreePolicyStatement(
-                        permissionSet=smarthome_pset,
+                        permissionSet=pset,
                         permissions=permissions,
                         resource=uripattern,
                     )
@@ -148,6 +158,16 @@ class Client:
         if resp.error.code != 0:
             raise Exception(resp.error.message)
 
+    def register(self, uuidstring):
+        """
+        Registers this entity as being able to publish on the smart_cities_namespace/<uuidstring>; requires the external
+        service to be running
+        """
+        self.client.publish('register', payload=json.dumps({
+            'hash': str(b64encode(self.hash), 'utf8'),
+            'uuid': uuidstring,
+        })).wait_for_publish()
+
     def sync(self):
         """
         Call this to make sure you are up to date with the permissions graph.
@@ -161,6 +181,12 @@ class Client:
         for r in resp:
             pass
         return
+
+    def parsehash(self, b64hash):
+        if isinstance(b64hash, bytes):
+            return b64hash
+        else:
+            return b64decode(b64hash)
 
     def grant_read_to(self, target_entity_hash, namespace, uripattern):
         """
@@ -193,6 +219,7 @@ class Client:
         Subscribes to the topic on the given namespace; fires the callback you registered in the index
         """
         self.sync()
+        namespace = self.parsehash(namespace)
         while not self._connected:
             time.sleep(1)
         print(self.entity_name, 'subscribing to',form_topic(namespace, topic))
@@ -202,6 +229,7 @@ class Client:
         """
         Publish the payload (any JSON-serializable object) to the topic on the given namespace
         """
+        namespace = self.parsehash(namespace)
         # build the proof for publishing on the topic
         publish_proof = self.agent.BuildRTreeProof(wave3.BuildRTreeProofParams(
             perspective = self.perspective,
@@ -209,7 +237,7 @@ class Client:
             resyncFirst=True,
             statements=[
                 wave3.RTreePolicyStatement(
-                    permissionSet=smarthome_pset,
+                    permissionSet=pset,
                     permissions=["write"],
                     resource=topic,
                 )
@@ -262,6 +290,7 @@ class Client:
         
     def on_message(self, client, userdata, msg):
         """MQTT callback for handling messages. Decodes/unpacks"""
+        self.sync()
         msg.payload = self.handle_msg(msg)
         if msg.payload:
             self._call_on_message(client, userdata, msg)
@@ -279,7 +308,7 @@ class Client:
             requiredRTreePolicy=wave3.RTreePolicy(
                 namespace=namespace,
                 statements=[wave3.RTreePolicyStatement(
-                    permissionSet=smarthome_pset,
+                    permissionSet=pset,
                     permissions=["write"],
                     resource=topic,
                 )]
