@@ -1,0 +1,11 @@
+[Unit]
+Description="WAVE agent"
+
+[Service]
+Restart=always
+User=root
+RestartSec=5
+ExecStart=/usr/local/bin/waved --config /etc/wave/wave.toml
+
+[Install]
+WantedBy=multi-user.target
