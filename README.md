@@ -36,3 +36,13 @@ A runtime for applications that allows for more optimal scheduling/resource mana
 
 [Roughly sketched architecture](https://github.com/conix-center/smart-cities-demo/raw/master/media/arch.pdf)
     
+
+## Components
+
+### WAVE
+
+`bash scripts/install-wave.sh`: Install waved service, python package
+
+`wave/python`: Python 3 WAVE + MQTT bindings. See `example.py` for example
+
+`wave/wv`: CLI tool for WAVE
