@@ -39,39 +39,63 @@ class TimescalePoster:
         except psycopg2.Error as e:
             cursor.close();
             print("Insert Error: %s".format(e))
-            //was this error due to adding a field?
-            if e == something:
+
+            #was this error due to adding a field?
+            if e == missing_column:
                 print("Attempting to alter table!")
                 #column_name = err.toString().split("\"")[1];
                 columnName = ""
 
                 params = []
-                t = self.__getType(tableObj[columnName]);
-                if(t is not 'err') {
+                try:
+                    t = self.__getType(tableObj[columnName]);
                     params.append(tableName);
                     params.append(columnkName);
                     params.append(t);
-                } else {
+                except TypeError as e:
+                    print("Got a type error %s".format(e))
                     print('Error with field %s'.format(columnName))
                     print('Table alteration failed')
-                    return
-                }
+                    raise e
                 
-                print(params)
-                cursor = self.connection.cursor()
+                #print(params)
                 try:
+                    cursor = self.connection.cursor()
                     cursor.execute("ALTER TABLE %s ADD COLUMN %s %s", params)
+                    self.connection.commit()
                 except psycopg2.Error as e:
                     print("Failed to alter table with error e".format(e))
 
                 print("Table alteration succeeded - attempting to insert again")
+
                 try:
                     self.insertData(tableName, timeStamp, tableObj)
                     print('posted successfully!')
-                    self.connection.commit()
                 except:
                     print("Unexpected error when reinserted!")
 
+            #was this error due to missing the table entirely?
+            elif e == missing_table:
+                try:
+                    self.createTable(tableName, tableObj)
+                    print("Created table successfully - reinserting")
+                except psycopg2.Error as e:
+                    print("Failed to create table??: %s".format(e))
+                    raise
+
+                try:
+                    self.insertData(tableName, timeStamp, tableObj)
+                    print('posted successfully!')
+                except:
+                    print("Unexpected error when reinserted!")
+                    raise
+
+    """
+    A private function that maps a type in python to a type in postgres
+    Supports Strings, bools, numbers and arrays
+    
+    Raises a typerror on failure
+    """
     def __getType(self, value):
         t = type(value)
         if(t is str):
@@ -93,9 +117,9 @@ class TimescalePoster:
             elif(t2 is float):
                 return 'DOUBLE PRECISION[]'
             else:
-                return 'err'
+                raise TypeError('Only supports strings, booleans, numbers and arrays of the former')
         else:
-            return 'err'
+            raise TypeError('Only supports strings, booleans, numbers and arrays of the former')
 
     """
     Creates a timescaledb table with at least a timestamp field. Partitions table
@@ -115,12 +139,14 @@ class TimescalePoster:
         nameList = []
         nameList.append(tableName)
         for key in tableObj:
-            t = self.__getType(tableObj[key])
-            if(t is not 'err'):
+            try: 
+                t = self.__getType(tableObj[key])
                 nameList.append(key)
                 nameList.append(t)
-            else:
+            except TypeError as e:
                 print('Error with object %s at key %s with value %s'.format(tableObj, key, tableObj[key]))
+                print("Caught error %s".format(e))
+                raise e
 
         cursor = self.connection.cursor()
 
