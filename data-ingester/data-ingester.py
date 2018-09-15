@@ -45,3 +45,7 @@ waveClient.subscribe(waveNamespace, "#")
 #catch the topics and post the data to postgres
 def on_message(client, userdata, message):
     print(message.topic + ':' + message.payload)
+
+import time
+while True:
+    time.sleep(1)
