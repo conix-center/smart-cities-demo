@@ -37,6 +37,7 @@ waveClient = WaveClient.Client(entity_name=waveConf['name'],
                     mosquitto_pass=mqttConf['password'],
                     mosquitto_user=mqttConf['username'],
                     mosquitto_port=mqttConf['port'],
+                    mosquitto_tls = False,
                     on_message=on_message)
 
 waveNamespace = waveConf['namespace']
