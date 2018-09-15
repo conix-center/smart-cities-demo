@@ -11,13 +11,13 @@ mqttParser = configparser.ConfigParser()
 waveParser = configparser.ConfigParser()
 
 #import the postgres config file
-postgresParser.read(postgres.ini)
+postgresParser.read('postgres.ini')
 
 #import the MQTT config file
-mqttParser.read(mqtt.ini)
+mqttParser.read('mqtt.ini')
 
 #import the wave config file
-waveParser.read(wave.ini)
+waveParser.read('wave.ini')
 
 #initialize a timescale poster library
 timescale = TimescalePoster(host=postgresParser['host'], 
@@ -36,7 +36,7 @@ waveClient = WaveClient(entity_name=waveParser['name'],
                     mosquitto_port=mqttParser['port'],
                     on_message=on_message)
 
-waveNamespace = waveParser['namesapce']
+waveNamespace = waveParser['namespace']
 waveClient.subscribe(waveNamespace, "#")
 
 #catch the topics and post the data to postgres
