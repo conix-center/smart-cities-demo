@@ -42,7 +42,7 @@ class Client:
     - mosquitto_url, mosquitto_user, mosquitto_pass: MQTT broker information
     - on_message: paho.mqtt style callback (def callback(client, userdata, meta): ...)
     """
-    def __init__(self, entity_name="gabe", wave_uri="localhost:410", mosquitto_url="", mosquitto_pass="", mosquitto_user="", mosquitto_port=1883, mosquitto_capath="/etc/ssl/certs/", on_message=None):
+    def __init__(self, entity_name="gabe", wave_uri="localhost:410", mosquitto_url="", mosquitto_pass="", mosquitto_user="", mosquitto_port=1883, mosquitto_capath=None, on_message=None):
         # connect to WAVE agent
         self.agent = wave3.WAVEStub(grpc.insecure_channel(wave_uri))
 
@@ -66,7 +66,10 @@ class Client:
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         self.client.username_pw_set(mosquitto_user, mosquitto_pass)
-        self.client.tls_set(mosquitto_capath)
+        if mosquitto_capath is None:
+            self.client.tls_set()
+        else:
+            self.client.tls_set(mosquitto_capath)
         self.client.connect(mosquitto_url, int(mosquitto_port), 60)
         self.client.loop_start()
 
