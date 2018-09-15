@@ -33,6 +33,7 @@ waveClient = WaveClient(entity_name=waveParser['name'],
                     mosquitto_url=mqttParser['host'],
                     mosquitto_pass=mqttParser['password'],
                     mosquitto_user=mqttParser['username'],
+                    mosquitto_port=mqttParser['port'],
                     on_message=on_message)
 
 waveNamespace = waveParser['namesapce']
