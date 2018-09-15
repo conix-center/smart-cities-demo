@@ -106,7 +106,7 @@ class TimescalePoster:
             return 'DOUBLE PRECISION'
         elif(t is float):
             return 'DOUBLE PRECISION'
-        else(t is list):
+        elif(t is list):
             t2 = type(value[0])
             if(t2 is str):
                 return 'TEXT[]'
