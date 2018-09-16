@@ -14,7 +14,7 @@ mqttParser.read('mqtt.ini')
 mqttConf  = mqttParser['DEFAULT']
 
 # also serves as subscribe topic
-a_uuid = "8607a83a-b7a2-11e8-8755-0cc47a0f7eea"
+a_uuid = "8608a83a-b7a2-11e8-8755-0cc47a0f7eea"
 
 ### PUBLISHER
 def sensor():
@@ -23,7 +23,7 @@ def sensor():
         i = i+1
         yield i
 
-a = client.Client("a",
+a = client.Client("b",
         mosquitto_url=mqttConf['host'],
         mosquitto_pass=mqttConf['password'],
         mosquitto_user=mqttConf['username'],
@@ -44,7 +44,7 @@ import threading
 import time
 def sense_and_send():
     while True:
-        time.sleep(2)
+        time.sleep(10)
         a.publish(SMARTCITIES_NAMESPACE, a_uuid, {'uuid': a_uuid, 'count': next(a_sensor)})
 t = threading.Thread(target=sense_and_send)
 t.start()
