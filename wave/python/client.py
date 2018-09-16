@@ -251,20 +251,20 @@ class Client:
             raise Exception(publish_proof.error)
 
         # build the proof for decrypting messages on the topic
-        decrypt_proof = self.agent.BuildRTreeProof(wave3.BuildRTreeProofParams(
-            perspective = self.perspective,
-            namespace=namespace,
-            resyncFirst=True,
-            statements=[
-                wave3.RTreePolicyStatement(
-                    permissionSet=wave3.WaveBuiltinPSET,
-                    permissions=[wave3.WaveBuiltinE2EE],
-                    resource=topic,
-                )
-            ]
-        ))
-        if decrypt_proof.error.code != 0:
-            raise Exception(decrypt_proof.error)
+        #decrypt_proof = self.agent.BuildRTreeProof(wave3.BuildRTreeProofParams(
+        #    perspective = self.perspective,
+        #    namespace=namespace,
+        #    resyncFirst=True,
+        #    statements=[
+        #        wave3.RTreePolicyStatement(
+        #            permissionSet=wave3.WaveBuiltinPSET,
+        #            permissions=[wave3.WaveBuiltinE2EE],
+        #            resource=topic,
+        #        )
+        #    ]
+        #))
+        #if decrypt_proof.error.code != 0:
+        #    raise Exception(decrypt_proof.error)
 
         # encrypt payload
         msg = bytes(json.dumps(payload), 'utf8')
@@ -327,7 +327,7 @@ class Client:
             perspective=self.perspective,
             ciphertext=payload,
         ))
-        return json.loads(decrypt_msg.content)
+        return json.loads(decrypt_msg.content.decode('ascii'))
 
 ### Utility functions
 
