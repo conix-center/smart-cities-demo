@@ -19,7 +19,7 @@ Clone the smart-cities-demo repository
 
 Create a root wave entity
 
-Create a data ingester wave entity, and grant it root read permissions.
+Run the data ingester, copy its hash, and grant it read permissions from the root
 
 Create a registration wave entity, and grant it root read,write permissions.
 
