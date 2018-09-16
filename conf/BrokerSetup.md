@@ -25,6 +25,13 @@ Create a registration wave entity, and grant it root read,write permissions.
 
 ## Startup necessary services
 
-Start the data ingester as a service
+Start the data ingester as a service. This requires placing the systemd file
+in the systemd services, enabling and starting the service.
 
-Start the registration server as a service
+Start the registration server as a service. This requires install go. Make sure
+to use the apt package golang-1.10-go because this registration script will no
+work on 1.6, the version downloaded by golang-go. You will also need to 
+symbolic link from /usr/lib/go-1.10/bin to /usr/bin for go to be on your path.
+
+Then copy the systemd file into your services folder, enable and start it. It expects
+the smart-cities-demo repo to be at the root of the home directory of the ubuntu user for now.
