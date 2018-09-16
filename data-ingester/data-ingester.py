@@ -29,8 +29,12 @@ timescale = timescale_poster.TimescalePoster(host=postgresConf['host'],
                             username=postgresConf['username'],
                             password=postgresConf['password'])
 
+#catch the topics and post the data to postgres
+def message(client, userdata, message):
+    print(message.topic)
+    print(message.payload)
+
 #startup the wave client and subscribe to all topics
-on_message = None
 waveClient = WaveClient.Client(entity_name=waveConf['name'],
                     wave_uri=waveConf['uri'],
                     mosquitto_url=mqttConf['host'],
@@ -38,14 +42,10 @@ waveClient = WaveClient.Client(entity_name=waveConf['name'],
                     mosquitto_user=mqttConf['username'],
                     mosquitto_port=mqttConf['port'],
                     mosquitto_tls = False,
-                    on_message=on_message)
+                    on_message=message)
 
 waveNamespace = waveConf['namespace']
 waveClient.subscribe(waveNamespace, "#")
-
-#catch the topics and post the data to postgres
-def on_message(client, userdata, message):
-    print(message.topic + ':' + message.payload)
 
 import time
 while True:
