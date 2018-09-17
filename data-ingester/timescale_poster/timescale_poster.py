@@ -6,7 +6,7 @@ class TimescalePoster:
 
     def __init__(self, host, port, database, username, password):
         self.connection = psycopg2.connect(dbname=database, host=host, port=port, user=username, password=password)
-    
+
     """
     Inserts data into an existing table. On failure due to not enough columns
     will automatically add columns to the table as necessary.
@@ -18,7 +18,7 @@ class TimescalePoster:
     def insertData(self, tableName, timeStamp, tableObj):
         cols = ""
         vals = ""
-        for key in tableObj: 
+        for key in tableObj:
             cols = cols + ", %s"
             vals = vals + ", %s"
 
@@ -33,7 +33,7 @@ class TimescalePoster:
 
         cursor = self.connection.cursor()
         try:
-            cursor.execute("INSERT INTO %s (TIMESTAMP" + cols + ") VALUES (%s", vals + ")", nameList)
+            cursor.execute("INSERT INTO %s (TIMESTAMP" + cols + ") VALUES (%s," vals + ")", nameList)
             print('posted successfully!')
             self.connection.commit()
         except psycopg2.Error as e:
@@ -57,7 +57,7 @@ class TimescalePoster:
                     print('Error with field %s'.format(columnName))
                     print('Table alteration failed')
                     raise e
-                
+
                 #print(params)
                 try:
                     cursor = self.connection.cursor()
@@ -93,7 +93,7 @@ class TimescalePoster:
     """
     A private function that maps a type in python to a type in postgres
     Supports Strings, bools, numbers and arrays
-    
+
     Raises a typerror on failure
     """
     def __getType(self, value):
@@ -139,7 +139,7 @@ class TimescalePoster:
         nameList = []
         nameList.append(tableName)
         for key in tableObj:
-            try: 
+            try:
                 t = self.__getType(tableObj[key])
                 nameList.append(key)
                 nameList.append(t)
