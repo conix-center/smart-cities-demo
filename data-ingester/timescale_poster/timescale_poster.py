@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import psycopg2
+from psycopg2 import sql
 
 class TimescalePoster:
 
@@ -19,76 +20,84 @@ class TimescalePoster:
         cols = ""
         vals = ""
         for key in tableObj:
-            cols = cols + ", %s"
+            cols = cols + ", {}"
             vals = vals + ", %s"
 
-        nameList = []
-        valList = []
-        nameList.append(tableName)
+        identifierList = []
+        identifierList.append(sql.Identifier(tableName))
         for key in tableObj:
-            nameList.append(key)
+            identifierList.append(sql.Identifier(key))
+
+        valList = []
+        valList.append(timeStamp)
+        for key in tableObj:
             valList.append(tableObj[key])
 
-        nameList = nameList + valList
 
         cursor = self.connection.cursor()
         try:
-            cursor.execute("INSERT INTO %s (TIMESTAMP" + cols + ") VALUES (%s," + vals + ")", nameList)
+            cursor.execute(sql.SQL("INSERT INTO {} (TIMESTAMP" + cols + ") VALUES (%s" + vals + ")")
+                    .format(*identifierList),valList)
             print('posted successfully!')
             self.connection.commit()
         except psycopg2.Error as e:
             cursor.close();
-            print("Insert Error: %s".format(e))
-
-            #was this error due to adding a field?
-            if e == missing_column:
-                print("Attempting to alter table!")
-                #column_name = err.toString().split("\"")[1];
-                columnName = ""
-
-                params = []
-                try:
-                    t = self.__getType(tableObj[columnName]);
-                    params.append(tableName);
-                    params.append(columnkName);
-                    params.append(t);
-                except TypeError as e:
-                    print("Got a type error %s".format(e))
-                    print('Error with field %s'.format(columnName))
-                    print('Table alteration failed')
-                    raise e
-
-                #print(params)
-                try:
-                    cursor = self.connection.cursor()
-                    cursor.execute("ALTER TABLE %s ADD COLUMN %s %s", params)
-                    self.connection.commit()
-                except psycopg2.Error as e:
-                    print("Failed to alter table with error e".format(e))
-
-                print("Table alteration succeeded - attempting to insert again")
-
-                try:
-                    self.insertData(tableName, timeStamp, tableObj)
-                    print('posted successfully!')
-                except:
-                    print("Unexpected error when reinserted!")
-
-            #was this error due to missing the table entirely?
-            elif e == missing_table:
+            self.connection.rollback()
+            print("Insert Error: {}".format(e))
+            print(e.pgcode)
+            #was this error due to a missing table?
+            if e.pgcode == '42P01':
+                print('Trying to create table')
                 try:
                     self.createTable(tableName, tableObj)
                     print("Created table successfully - reinserting")
                 except psycopg2.Error as e:
-                    print("Failed to create table??: %s".format(e))
+                    print("Failed to create table??: {}".format(e))
                     raise
 
                 try:
                     self.insertData(tableName, timeStamp, tableObj)
-                    print('posted successfully!')
+                    print('reinserted successfully!')
                 except:
                     print("Unexpected error when reinserted!")
                     raise
+
+            #was this error due to missing the table entirely?
+            elif e.pgcode == '42703':
+                columnName = e.pgerror.split('"')[1]
+                print("Attempting to add column {}".format(columnName))
+
+                identifierList = []
+                typeName = None
+                try:
+                    typeName = self.__getType(tableObj[columnName]);
+                except TypeError as e:
+                    print("Got a type error {}".format(e))
+                    print('Error with field {}'.format(columnName))
+                    print('Table alteration failed')
+                    raise e
+
+                identifierList.append(sql.Identifier(tableName));
+                identifierList.append(sql.Identifier(columnName));
+
+                query = "ALTER TABLE {} ADD COLUMN {}" + typeName
+
+                try:
+                    cursor = self.connection.cursor()
+                    cursor.execute(sql.SQL(query).format(*identifierList))
+                    self.connection.commit()
+                    print("Table alteration succeeded - attempting to insert again")
+                except psycopg2.Error as e:
+                    self.connection.rollback()
+                    print("Failed to alter table with error {}".format(e))
+
+
+                try:
+                    self.insertData(tableName, timeStamp, tableObj)
+                    print('reinserted successfully!')
+                except:
+                    print("Unexpected error when reinserted!")
+
 
     """
     A private function that maps a type in python to a type in postgres
@@ -133,27 +142,32 @@ class TimescalePoster:
         #placeholders
         cols = ""
         for key in tableObj:
-            cols = cols + ", %s %s"
+            cols = cols + ", {{}} {}"
 
-        #map the type of those objects to the correct postgres type
-        nameList = []
-        nameList.append(tableName)
+        identifierList = []
+        typeList = []
+        identifierList.append(sql.Identifier(tableName))
         for key in tableObj:
+            identifierList.append(sql.Identifier(key))
             try:
                 t = self.__getType(tableObj[key])
-                nameList.append(key)
-                nameList.append(t)
+                typeList.append(t)
             except TypeError as e:
-                print('Error with object %s at key %s with value %s'.format(tableObj, key, tableObj[key]))
-                print("Caught error %s".format(e))
+                print('Error with object {} at key {} with value {}'.format(tableObj, key, tableObj[key]))
+                print("Caught error {}".format(e))
                 raise e
 
         cursor = self.connection.cursor()
 
+        #This really really really should be safe because I'm only inserting a constrained set of types
+        query = ("CREATE TABLE {{}} (TIMESTAMP TIMESTAMPTZ NOT NULL" + cols + ")").format(*typeList)
         try:
-            cursor.execute("CREATE TABLE %s (TIMESTAMP TIMESTAMPTZ NOT NULL" + cols + ")", nameList)
+            cursor.execute(sql.SQL(query).format(*identifierList))
         except psycopg2.Error as e:
-            print("CREATE TABLE Error: %s".format(e))
+            cursor.close()
+            self.connection.rollback()
+            print("CREATE TABLE Error: {}".format(e))
+            raise e
 
         self.connection.commit()
 
@@ -167,7 +181,10 @@ class TimescalePoster:
         try:
             cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)",tableName)
         except psycopg2.Error as e:
+            cursor.close()
+            self.connection.rollback()
             return False
 
+        self.connection.commit()
         return True
 
