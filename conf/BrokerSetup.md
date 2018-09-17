@@ -22,6 +22,7 @@ Create a root wave entity
 Run the data ingester, copy its hash, and grant it read permissions from the root
 
 Create a registration wave entity, and grant it root read,write permissions.
+Grant registration entity decrypt permissions from the [waveubiltin pset](https://github.com/immesys/wave/blob/master/consts/params.go).
 
 ## Startup necessary services
 
