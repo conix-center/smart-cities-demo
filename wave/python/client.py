@@ -35,7 +35,7 @@ class Client:
     A client has a WAVE ENTITY (identified by entity_name). This gets published to WAVE storage so others
     can refer to it by the public key (retrieved using Client.hash()). This entity is placed into a pickle
     file in the current directory in a file called entity-<Client.entity_name> (e.g. "entity-gabe").
-    
+
     Parameters:
     - entity_name: a local alias for a public/private key pair comprising a WAVE entity
     - wave_uri: the GRPC endpoint of the local waved agent. Shouldn't need to be changed
@@ -250,21 +250,21 @@ class Client:
         if publish_proof.error.code != 0:
             raise Exception(publish_proof.error)
 
-        # build the proof for decrypting messages on the topic
-        #decrypt_proof = self.agent.BuildRTreeProof(wave3.BuildRTreeProofParams(
-        #    perspective = self.perspective,
-        #    namespace=namespace,
-        #    resyncFirst=True,
-        #    statements=[
-        #        wave3.RTreePolicyStatement(
-        #            permissionSet=wave3.WaveBuiltinPSET,
-        #            permissions=[wave3.WaveBuiltinE2EE],
-        #            resource=topic,
-        #        )
-        #    ]
-        #))
-        #if decrypt_proof.error.code != 0:
-        #    raise Exception(decrypt_proof.error)
+        #build the proof for decrypting messages on the topic
+        decrypt_proof = self.agent.BuildRTreeProof(wave3.BuildRTreeProofParams(
+            perspective = self.perspective,
+            namespace=namespace,
+            resyncFirst=True,
+            statements=[
+                wave3.RTreePolicyStatement(
+                    permissionSet=wave3.WaveBuiltinPSET,
+                    permissions=[wave3.WaveBuiltinE2EE],
+                    resource=topic,
+                )
+            ]
+        ))
+        if decrypt_proof.error.code != 0:
+            raise Exception(decrypt_proof.error)
 
         # encrypt payload
         msg = bytes(json.dumps(payload), 'utf8')
@@ -291,7 +291,7 @@ class Client:
         """MQTT callback"""
         print('connected!')
         self._connected = True
-        
+
     def on_message(self, client, userdata, msg):
         """MQTT callback for handling messages. Decodes/unpacks"""
         self.sync()
