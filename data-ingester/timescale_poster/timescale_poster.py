@@ -33,7 +33,7 @@ class TimescalePoster:
 
         cursor = self.connection.cursor()
         try:
-            cursor.execute("INSERT INTO %s (TIMESTAMP" + cols + ") VALUES (%s," vals + ")", nameList)
+            cursor.execute("INSERT INTO %s (TIMESTAMP" + cols + ") VALUES (%s," + vals + ")", nameList)
             print('posted successfully!')
             self.connection.commit()
         except psycopg2.Error as e:
