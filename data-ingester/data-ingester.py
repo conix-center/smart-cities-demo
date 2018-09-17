@@ -57,10 +57,10 @@ def message(client, userdata, message):
     if 'time' in payload_lower:
         timescale_timestamp = payload_lower['time']
         del payload_lower['time']
-    elif timestamp in payload_lower:
+    elif 'timestamp' in payload_lower:
         timescale_timestamp = payload_lower['timestamp']
         del payload_lower['timestamp']
-    elif tstamp in payload_lower:
+    elif 'tstamp' in payload_lower:
         timescale_timestamp = payload_lower['tstamp']
         del payload_lower['tstamp']
     else:
@@ -68,11 +68,11 @@ def message(client, userdata, message):
 
     # Now insert this data into timescale. If a table or row does not
     # Exist the library should handle posting it
-    print("Posting to table: %s\nTimestamp: %s\nData: %s\n\n".format(tableName, timescale_timestamp, payload_lower))
+    print("Posting to table: {}\nTimestamp: {}\nData: {}\n\n".format(tableName, timescale_timestamp, payload_lower))
     try:
         timescale.insertData(tableName, timescale_timestamp, payload_lower)
     except Exception as e:
-        print("Timescale data insert failed: %s".format(e))
+        print("Timescale data insert failed: {}".format(e))
 
 #startup the wave client and subscribe to all topics
 waveClient = WaveClient.Client(entity_name=waveConf['name'],
