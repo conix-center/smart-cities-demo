@@ -5,9 +5,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..','wave','python')
 import client
 import configparser
 
-# config information
-SMARTCITIES_NAMESPACE = 'GyALwtmePnvwhXGmoQPjuW8ZIANlsqG_-P7nvISdwQ-9RQ=='
-
 #import the MQTT config file
 mqttParser = configparser.ConfigParser()
 mqttParser.read('mqtt.ini')
@@ -29,10 +26,10 @@ a = client.Client("b",
         mosquitto_user=mqttConf['username'],
         mosquitto_port=mqttConf['port'],
         mosquitto_tls = True)
- 
+
 print("entity is", a.b64hash)
 a_sensor = sensor()
-a.register(a_uuid)
+namespace = a.register(a_uuid)
 
 # "out of band" a grants to b
 # TODO: replace this with the b64 hash you get for the 'b' entity upon running 'subscriber.py', then uncomment this
@@ -45,6 +42,6 @@ import time
 def sense_and_send():
     while True:
         time.sleep(10)
-        a.publish(SMARTCITIES_NAMESPACE, a_uuid, {'uuid': a_uuid, 'count': next(a_sensor)})
+        a.publish(namespace, a_uuid + '/sensor', {'uuid': a_uuid, 'count': next(a_sensor)})
 t = threading.Thread(target=sense_and_send)
 t.start()

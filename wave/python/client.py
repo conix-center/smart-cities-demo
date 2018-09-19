@@ -5,10 +5,11 @@ import json
 import pickle
 import base64
 import grpc
+import threading
 
-# use this pset
+#use this pset
 pset = bytes("GyAa2eh0Ksh4eYdmHiAVuU7Hf2tyy06QbkrLke1ho0WS_Q==", "utf8")
-smart_cities_namespace = bytes("GyAHBqhwQ9hEYEYArz0vUhHsUmMT6NC9TdoA2mhH5-DGoA==", "utf8")
+
 
 """
 **NOTE**: WAVE is pretty general; below I describe a particular application/interpretation of its features towards the pub/sub task
@@ -165,12 +166,28 @@ class Client:
     def register(self, uuidstring):
         """
         Registers this entity as being able to publish on the smart_cities_namespace/<uuidstring>; requires the external
-        service to be running
+        service to be running.
+
+        Also subscribes to the registration response and sets the namespace
+        and pset for the registering entity
         """
+        # Subscribe to this topic
+        self.client.subscribe('register/response')
+
+        # Wait for a response event or a timeout
+        self.registerEvent = threading.Event()
+
         self.client.publish('register', payload=json.dumps({
             'hash': str(b64encode(self.hash), 'utf8'),
             'uuid': uuidstring,
         })).wait_for_publish()
+
+        if not self.registerEvent.wait(timeout=10):
+            print("ERROR: Registration response timed out!")
+            raise TimeoutError("Registration response timed out")
+        else:
+            return self.registerResponseNamespace
+
 
     def sync(self):
         """
@@ -294,10 +311,17 @@ class Client:
 
     def on_message(self, client, userdata, msg):
         """MQTT callback for handling messages. Decodes/unpacks"""
-        self.sync()
-        msg.payload = self.handle_msg(msg)
-        if msg.payload:
-            self._call_on_message(client, userdata, msg)
+        if msg.topic == 'register/response':
+            resp = json.loads(msg.payload.decode('utf8'))
+            if(resp['Hash'] == self.b64hash):
+                self.registerResponseNamespace = resp['Namespace']
+                self.registerEvent.set()
+
+        else:
+            self.sync()
+            msg.payload = self.handle_msg(msg)
+            if msg.payload:
+                self._call_on_message(client, userdata, msg)
 
     def handle_msg(self, msg):
         """

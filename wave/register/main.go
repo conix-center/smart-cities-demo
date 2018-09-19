@@ -47,6 +47,7 @@ type Config struct {
 	Pset      string
 	// registration URI
 	RegistrationTopic string
+	RegistrationResponseTopic string
 }
 
 type RegistrationServer struct {
@@ -216,7 +217,7 @@ func StartRegistrationServer(cfg *Config) error {
 
 		// Form an MQTT response that gives the pset and namespace
 		// for this registration server
-		response := RegisterResponseMessage(registrationRequest.Hash, registrationRequest.UUID, cfg.Namespace, cfg.Pset)
+		response := RegisterResponseMessage{registrationRequest.Hash, registrationRequest.UUID, cfg.Namespace, cfg.Pset}
 		r, err := json.Marshal(response)
 		if err != nil {
 			log.Println("bad json marshaling")
@@ -225,8 +226,8 @@ func StartRegistrationServer(cfg *Config) error {
 
 		// Respond with the configured Namespace and PSET
 		log.Println("Responding to request:")
-		log.Println(r)
-		MQTTclient.Publish(cfg.RegistrationTopic, 0, false, r)
+		log.Println(string(r))
+		MQTTclient.Publish(cfg.RegistrationResponseTopic, 0, false, string(r))
 
 	})
 
