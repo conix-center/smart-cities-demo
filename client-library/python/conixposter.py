@@ -2,7 +2,7 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..','wave','python'))
 import client
 import time
-from enum import Enum, auto
+from aenum import Enum, auto
 import pint
 
 class ConixPoster:
@@ -17,7 +17,6 @@ class ConixPoster:
             mosquitto_tls = True)
 
         self.registrationMap = {}
-        self.sensorTypes = self.SensorTypes()
 
     """
     This post sensor data to conix in the right format
@@ -25,7 +24,7 @@ class ConixPoster:
     sensor_uuid - some unique string identifying a sensor
     sensor - the type of sensor you are posting. must be of type ConixPoster.SensorTypes
     value - the value of the sensor. Can be number or text
-    unit - A string of a standard unit or a pint unit object. raises unit error on failure
+    unit - A string of a standard units. A complete list is here: https://github.com/hgrecco/pint/blob/master/pint/default_en.txt
     timestamp - microsecond epoch time. Optionally. Excluding will set to now
     """
     def post(self, sensor_uuid, sensor, value, unit, timestamp=None):
@@ -35,10 +34,11 @@ class ConixPoster:
             raise TypeError("sensor must by a predefined sensor type. Find your sensor type in sensortypes.py or add one if it doesn't exist.")
 
         parsed_unit = None
-        if not isinstance(unit, pint.UnitRegistry()):
-            #check if we can resolve the unit string
-            ureg = UnitRegistry()
-            parsed_unit = ureg.parse_unit(unit)
+        if isinstance(unit, str):
+            ureg = pint.UnitRegistry()
+            parsed_unit = ureg.parse_units(unit)
+        else:
+            raise TypeError("Unit must either be a unit string or predefined unit type")
 
         #do we know about this sensor uuid?
         if sensor_uuid not in self.registrationMap:
@@ -47,20 +47,23 @@ class ConixPoster:
                 self.registrationMap[sensor_uuid] = namespace
             except TimeoutError as e:
                 print(e)
+                print("Post failed.")
                 print("Maybe the registration server is down?")
                 return
 
         message = {}
         message['UUID'] = sensor_uuid
         message['value'] = value
-        message['channel'] = str(sensor)
+        message['channel'] = str(sensor.name)
         message['unit'] = str(parsed_unit)
         if timestamp is not None:
             message['timestamp'] = timestamp
         else:
             message['timestamp'] = int(round(time.time()*100000))
 
-        self.client.publish(self.registrationMap[sensor_uuid],sensor_uuid + '/' + str(sensor), message)
+        print(message)
+
+        self.client.publish(self.registrationMap[sensor_uuid],sensor_uuid + '/' + str(sensor.name), message)
 
     class SensorTypes(Enum):
         Zone_Temperature_Sensor = auto()

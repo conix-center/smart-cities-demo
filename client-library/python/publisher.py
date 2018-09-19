@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..','wave','python'))
+import pint
 
 import conixposter
 from uuid import getnode as get_mac
@@ -24,7 +25,8 @@ import threading
 import time
 def sense_and_send():
     while True:
-        time.sleep(10)
-        poster.post(a_uuid, poster.sensorTypes.ZONE_TEMPERATURE_SENSOR, next(a_sensor))
+        time.sleep(2)
+        ureg = pint.UnitRegistry()
+        poster.post(a_uuid, conixposter.ConixPoster.SensorTypes.Zone_Temperature_Sensor, next(a_sensor), 'meter')
 t = threading.Thread(target=sense_and_send)
 t.start()
