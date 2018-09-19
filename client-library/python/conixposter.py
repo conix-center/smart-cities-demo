@@ -3,6 +3,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..','wave','python')
 import client
 import time
 from enum import Enum, auto
+import pint
 
 class ConixPoster:
 
@@ -24,14 +25,21 @@ class ConixPoster:
     sensor_uuid - some unique string identifying a sensor
     sensor - the type of sensor you are posting. must be of type ConixPoster.SensorTypes
     value - the value of the sensor. Can be number or text
+    unit - A string of a standard unit or a pint unit object. raises unit error on failure
     timestamp - microsecond epoch time. Optionally. Excluding will set to now
     """
-    def post(self, sensor_uuid, sensor, value, timestamp=None):
-        
+    def post(self, sensor_uuid, sensor, value, unit, timestamp=None):
+
         #is this a valid sensor type?
         if not isinstance(sensor,self.SensorTypes):
             raise TypeError("sensor must by a predefined sensor type. Find your sensor type in sensortypes.py or add one if it doesn't exist.")
-        
+
+        parsed_unit = None
+        if not isinstance(unit, pint.UnitRegistry()):
+            #check if we can resolve the unit string
+            ureg = UnitRegistry()
+            parsed_unit = ureg.parse_unit(unit)
+
         #do we know about this sensor uuid?
         if sensor_uuid not in self.registrationMap:
             try:
@@ -46,11 +54,12 @@ class ConixPoster:
         message['UUID'] = sensor_uuid
         message['value'] = value
         message['channel'] = str(sensor)
+        message['unit'] = str(parsed_unit)
         if timestamp is not None:
             message['timestamp'] = timestamp
         else:
             message['timestamp'] = int(round(time.time()*100000))
-            
+
         self.client.publish(self.registrationMap[sensor_uuid],sensor_uuid + '/' + str(sensor), message)
 
     class SensorTypes(Enum):
