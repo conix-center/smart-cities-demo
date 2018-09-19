@@ -26,6 +26,13 @@ type RegisterMessage struct {
 	UUID string `json:"uuid"`
 }
 
+type RegisterResponseMessage struct {
+	Hash string
+	UUID string
+	Namespace string
+	PSet string
+}
+
 type Config struct {
 	// MQTT information
 	MQTTBroker string
@@ -206,6 +213,20 @@ func StartRegistrationServer(cfg *Config) error {
 			log.Println("bad attestation", encrypt_att.Error)
 			return
 		}
+
+		// Form an MQTT response that gives the pset and namespace
+		// for this registration server
+		response := RegisterResponseMessage(registrationRequest.Hash, registrationRequest.UUID, cfg.Namespace, cfg.Pset)
+		r, err := josn.Marshal(response)
+		if err != nil {
+			log.Println("bad json marshaling")
+			return
+		}
+
+		// Respond with the configured Namespace and PSET
+		log.Println("Responding to request:")
+		log.Println(r)
+		MQTTclient.Publish(cfg.RegistrationTopic, 0, false, r)
 
 	})
 
