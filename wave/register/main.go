@@ -109,9 +109,9 @@ func StartRegistrationServer(cfg *Config) error {
 
 	// connect to MQTT broker
 	opts := mqtt.NewClientOptions()
-	opts = opts.SetCleanSession(true).
+	opts = opts.SetCleanSession(false).
 		AddBroker(cfg.MQTTBroker).
-		SetClientID("TODO").
+                SetClientID("Test").
 		SetUsername(cfg.MQTTUser).
 		SetPassword(cfg.MQTTPass).
 		SetAutoReconnect(true)
@@ -123,8 +123,9 @@ func StartRegistrationServer(cfg *Config) error {
 	}
 
 	// subscribe to registration topic
-	MQTTclient.Subscribe(cfg.RegistrationTopic, 0x1, func(client mqtt.Client, msg mqtt.Message) {
+	MQTTclient.Subscribe(cfg.RegistrationTopic, 0, func(client mqtt.Client, msg mqtt.Message) {
 
+                log.Println("got message")
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 		defer cancel()
 
