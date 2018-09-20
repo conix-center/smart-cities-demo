@@ -34,7 +34,9 @@ class ConixPoster:
             raise TypeError("sensor must by a predefined sensor type. Find your sensor type in sensortypes.py or add one if it doesn't exist.")
 
         parsed_unit = None
-        if isinstance(unit, str):
+        if unit == 'percent' or unit == '%':
+            parsed_unit = 'percent'
+        elif isinstance(unit, str):
             ureg = pint.UnitRegistry()
             parsed_unit = ureg.parse_units(unit)
         else:
@@ -216,6 +218,7 @@ class ConixPoster:
         Mixed_Air_Temperature_Sensor = auto()
         Mixed_Air_Damper_Position_Sensor = auto()
         Memory_Usage_Sensor = auto()
+        Memory_Total_Sensor = auto()
         Medium_Temperature_Hot_Water_Supply_Temperature_Sensor = auto()
         Medium_Temperature_Hot_Water_Return_Temperature_Sensor = auto()
         Medium_Temperature_Hot_Water_Discharge_Temperature_Sensor = auto()
