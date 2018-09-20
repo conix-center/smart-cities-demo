@@ -111,7 +111,7 @@ func StartRegistrationServer(cfg *Config) error {
 	opts := mqtt.NewClientOptions()
 	opts = opts.SetCleanSession(false).
 		AddBroker(cfg.MQTTBroker).
-                SetClientID("Test").
+                SetClientID("Register_ID_" + string(rand.Int())).
 		SetUsername(cfg.MQTTUser).
 		SetPassword(cfg.MQTTPass).
 		SetAutoReconnect(true)
