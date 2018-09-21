@@ -1,3 +1,0 @@
-paho-mqtt
-grpcio
--e git://github.com/immesys/pywave#egg=wave3

@@ -11,4 +11,9 @@ setup(
     author_email='gtfierro@cs.berkeley.edu',  # Optional
     keywords='wave mqtt access control entity',  # Optional
     packages=find_packages(exclude=['examples', 'docs', 'tests']),  # Required
+    install_requirements = ['grpcio',
+                            'paho-mqtt',
+                            'wave3'],
+
+    dependency_links = ['git://github.com/immesys/pywave#egg=wave3'],
 )
