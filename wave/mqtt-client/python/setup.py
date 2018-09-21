@@ -4,7 +4,7 @@ from io import open
 
 setup(
     name='wavemqtt',  # Required
-    version='0.0.1',  # Required
+    version='0.0.2',  # Required
     description='A client for wave-mqtt integration',  # Optional
     url='https://github.com/conix-center/smart-cities-demo/tree/master/wave/mqtt-client/python/wavemqtt',  # Optional
     author='Gabe Fierro',  # Optional
@@ -12,8 +12,7 @@ setup(
     keywords='wave mqtt access control entity',  # Optional
     packages=find_packages(exclude=['examples', 'docs', 'tests']),  # Required
     install_requires = ['grpcio',
-                            'paho-mqtt',
-                            'wave3'],
+                            'paho-mqtt'],
 
-    dependency_links = ['git://github.com/immesys/pywave#egg=wave3'],
+    #dependency_links = ['git://github.com/immesys/pywave#egg=wave3'],
 )
