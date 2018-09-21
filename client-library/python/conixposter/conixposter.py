@@ -1,5 +1,6 @@
+
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..','wave','python'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../..','wave','python'))
 import client
 import time
 from aenum import Enum, auto

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys, os
 import pint
+sys.path.append(os.path.join(os.path.dirname(__file__), '../','conixposter'))
 import conixposter
 from uuid import getnode as get_mac
 
