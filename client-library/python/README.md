@@ -14,7 +14,7 @@ sudo systemctl enable waved
 sudo systemctl start waved
 
 #install wave3
-pip3 install git://github.com/immesys/pywave#egg=wave3
+pip3 install git+https://github.com/immesys/pywave#egg=wave3
 
 #install the conixposter package
 pip3 install conixposter
