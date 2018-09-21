@@ -15,7 +15,7 @@ setup(
                       'aenum',
                       'wavemqtt'],  # Optional
     
-    dependency_links=['https://github.com/conix-center/smart-cities-demo/tree/master/wave/mqtt-client/python'],
+    dependency_links=['https://github.com/conix-center/smart-cities-demo/tree/master/wave/mqtt-client/python#egg=wavemqtt'],
 
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # `pip` to create the appropriate form of executable for the target
@@ -23,9 +23,9 @@ setup(
     #
     # For example, the following would provide a command called `sample` which
     # executes the function `main` from this package when invoked:
-    entry_points={  # Optional
-        'console_scripts': [
-            'conixpost=conixposter::main',
-        ],
-    },
+    #entry_points={  # Optional
+    #    'console_scripts': [
+    #        'conixpost=conixposter::main',
+    #    ],
+    #},
 )

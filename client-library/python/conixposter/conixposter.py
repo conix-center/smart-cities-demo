@@ -1,7 +1,5 @@
-
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..','wave','python'))
-import client
+import wavemqtt
 import time
 from aenum import Enum, auto
 import pint
@@ -10,7 +8,7 @@ class ConixPoster:
 
     def __init__(self, client_id, domain_url = 'stream.conixdb.io', domain_username='conix', domain_password='stream', domain_port='8883'):
         #start up a conix client
-        self.client = client.Client(str(client_id),
+        self.client = wavemqtt.Client(str(client_id),
             mosquitto_url=domain_url,
             mosquitto_pass=domain_password,
             mosquitto_user=domain_username,
