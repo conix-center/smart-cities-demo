@@ -1,4 +1,4 @@
-import client
+import wavemqtt
 
 # config information
 SMARTCITIES_NAMESPACE = 'GyAHBqhwQ9hEYEYArz0vUhHsUmMT6NC9TdoA2mhH5-DGoA=='
@@ -13,7 +13,7 @@ def sensor():
         i = i+1
         yield i
 
-a = client.Client("a")
+a = wavemqtt.Client("a")
 print("entity is",a.b64hash)
 a_sensor = sensor()
 a.register(a_uuid)

@@ -1,16 +1,16 @@
 import time
-import client
+import wavemqtt
 
 
 # create berkeley namespace (only for managing permissions)
-berkeley = client.Client("berkeley")
+berkeley = wavemqtt.Client("berkeley")
 
 # create gabe client
 
 def gabe_on_message(client, userdata, msg):
     print('GABE',msg.topic,msg.payload)
     print('-'*10)
-gabe = client.Client("gabe", on_message=gabe_on_message)
+gabe = wavemqtt.Client("gabe", on_message=gabe_on_message)
 # this doesn't fail (yet)
 gabe.subscribe(berkeley.hash, 'a/b/c')
 
@@ -36,7 +36,7 @@ except Exception as e:
 def other_on_message(client, userdata, msg):
     print('OTHER',msg.topic,msg.payload)
     print('-'*10)
-other = client.Client("other", on_message=other_on_message)
+other = wavemqtt.Client("other", on_message=other_on_message)
 
 # this successfully publishes, but other doesn't get it
 gabe.publish(berkeley.hash, "a/b/c", "hello to other (no recv)")
