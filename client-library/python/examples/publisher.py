@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..','wave','python'))
 import pint
-
 import conixposter
 from uuid import getnode as get_mac
 
