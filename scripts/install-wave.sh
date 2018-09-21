@@ -3,13 +3,13 @@
 set -ex
 
 # copy wave binary and systemd unit file
-sudo cp wave/waved /usr/local/bin/waved
-sudo cp wave/wv /usr/local/bin/wv
+sudo cp wave/bin/waved /usr/local/bin/waved
+sudo cp wave/bin/wv /usr/local/bin/wv
 sudo mkdir -p /etc/wave
 sudo cp conf/wave.toml /etc/wave/wave.toml
 sudo chmod +x /usr/local/bin/waved
 sudo chmod +x /usr/local/bin/wv
-sudo cp wave/waved.service /etc/systemd/system/.
+sudo cp wave/systemd/waved.service /etc/systemd/system/.
 sudo systemctl start waved
 sudo systemctl enable waved
 
@@ -24,5 +24,5 @@ pip3 install -e pywave
 pip3 install wheel paho-mqtt
 
 # run example
-cd wave/python/
+cd wave/mqtt-client/python/examples
 python example.py
