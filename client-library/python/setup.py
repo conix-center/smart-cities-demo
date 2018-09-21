@@ -13,9 +13,10 @@ setup(
     packages=find_packages(exclude=['examples', 'docs', 'tests']),  # Required
     install_requires=['pint',
                       'aenum',
+                      'wave3',
                       'wavemqtt'],  # Optional
     
-    dependency_links=['https://github.com/conix-center/smart-cities-demo/tree/master/wave/mqtt-client/python#egg=wavemqtt'],
+    dependency_links=['git://github.com/immesys/pywave#egg=wave3'],
 
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # `pip` to create the appropriate form of executable for the target
