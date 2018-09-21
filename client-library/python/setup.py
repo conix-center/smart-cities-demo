@@ -15,7 +15,7 @@ setup(
                       'aenum',
                       'wavemqtt'],  # Optional
     
-    dependency_links=['https://github.com/conix-center/smart-cities-demo/tree/master/wave/mqttclient'],
+    dependency_links=['https://github.com/conix-center/smart-cities-demo/tree/master/wave/mqtt-client/python'],
 
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # `pip` to create the appropriate form of executable for the target
