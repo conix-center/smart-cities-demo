@@ -169,6 +169,15 @@ class TimescalePoster:
             print("CREATE TABLE Error: {}".format(e))
             raise e
 
+        #okay now use the timescale extension to make this a hypertable
+        query = "SELECT create_hypertable({},'timestamp')"
+        try:
+            cursor.execute(sql.SQL(query).format(sql.Identifier(tableName)))
+        except psycopg2.Error as e:
+            cursor.close()
+            self.connection.rollback()
+            print("create_hypertable Error: {}".format(e))
+
         self.connection.commit()
 
     """
