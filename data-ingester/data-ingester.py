@@ -2,9 +2,7 @@
 import sys,os
 import configparser
 from timescale_poster import timescale_poster
-#add the wave python directory to our path so that we can import the wave client
-sys.path.append(os.path.join(os.path.dirname(__file__), '..','wave','python'))
-import client as WaveClient
+import wavemqtt
 import datetime
 
 postgresParser = configparser.ConfigParser()
@@ -103,7 +101,7 @@ def message(client, userdata, message):
         print("Timescale data insert failed: {}".format(e))
 
 #startup the wave client and subscribe to all topics
-waveClient = WaveClient.Client(entity_name=waveConf['name'],
+waveClient = wavemqtt.Client(entity_name=waveConf['name'],
                     wave_uri=waveConf['uri'],
                     mosquitto_url=mqttConf['host'],
                     mosquitto_pass=mqttConf['password'],
