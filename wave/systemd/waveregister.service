@@ -1,5 +1,6 @@
 [Unit]
 Description="An automatic registration service for wave"
+After=network.target mosquitto.service waved.service
 
 [Service]
 Restart=always
