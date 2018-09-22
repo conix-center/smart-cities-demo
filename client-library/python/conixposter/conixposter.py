@@ -58,10 +58,9 @@ class ConixPoster:
                 return
 
         message = {}
-        message['UUID'] = sensor_uuid
-        message['value'] = value
-        message['channel'] = str(sensor.name)
-        message['unit'] = str(parsed_unit)
+        message['uuid'] = sensor_uuid
+        message[str(sensor.name)] = value
+        message[str(sensor.name) + '_units'] = str(parsed_unit)
         if timestamp is not None:
             message['timestamp'] = timestamp
         else:
