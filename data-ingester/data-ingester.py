@@ -52,7 +52,6 @@ def message(client, userdata, message):
     # Look for a timestamp in the message. If none exists use now as the time
     #lowercase the message dict
     payload_lower = {k.lower():v for k,v in message.payload.items()}
-
     timescale_timestamp = None
     if 'time' in payload_lower:
         timescale_timestamp = payload_lower['time']
@@ -64,13 +63,42 @@ def message(client, userdata, message):
         timescale_timestamp = payload_lower['tstamp']
         del payload_lower['tstamp']
     else:
-        timescale_timestamp = str(datetime.datetime.now())
+        timescale_timestamp = str(int(round(time.time()*1000000)))
+
+    #extract all of the fields and post them individually
+    dict_to_insert = {}
+    #check of uuid
+    uuid = None
+    if 'uuid' in payload_lower:
+        uuid = payload_lower['uuid']
+        del payload_lower['uuid']
+    else:
+        print('Message payload not formatted correctly - must include UUID')
+        return
+
+    for key in payload_lower:
+        #is the key units or channel?
+        name = None
+        if(key.find('units') > -1):
+            name = key.split('_')[:-1]
+        else:
+            name = key
+
+        if name in dict_to_insert:
+            dict_to_insert[name][key] = payload_lower[key]
+        else:
+            dict_to_insert[name] = {}
+            dict_to_insert[name][key] = payload_lower[key]
+
 
     # Now insert this data into timescale. If a table or row does not
     # Exist the library should handle posting it
-    print("Posting to table: {}\nTimestamp: {}\nData: {}\n\n".format(tableName, timescale_timestamp, payload_lower))
     try:
-        timescale.insertData(tableName, timescale_timestamp, payload_lower)
+        #loop through the insert dict forming payloads
+        for key in dict_to_insert:
+            dict_to_insert[key]['uuid'] = uuid
+            print("Posting to table: {}\nTimestamp: {}\nData: {}\n\n".format(tableName, timescale_timestamp, dict_to_insert[key]))
+            timescale.insertData(tableName, timescale_timestamp, dict_to_insert[key])
     except Exception as e:
         print("Timescale data insert failed: {}".format(e))
 
