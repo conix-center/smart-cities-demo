@@ -65,18 +65,21 @@ class ConixPoster:
         if timestamp is not None:
             message['timestamp'] = timestamp
         else:
-            message['timestamp'] = int(round(time.time()*100000))
+            message['timestamp'] = int(round(time.time()*1000000))
 
         print(message)
 
         self.client.publish(self.registrationMap[sensor_uuid],sensor_uuid + '/' + str(sensor.name), message)
 
 class Diagnostics(Enum):
+       Battery_Energy = auto()
+       Battery_Percent = auto()
+       Battery_Voltage = auto()
        CPU_Usage = auto()
        Memory_Usage = auto()
        Memory_Total = auto()
-       Up_Time = auto()
        Packet_Count = auto()
+       Up_Time = auto()
 
 class Sensors(Enum):
        Zone_Temperature = auto()
