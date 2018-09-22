@@ -25,6 +25,7 @@ def sense_and_send():
     while True:
         time.sleep(2)
         ureg = pint.UnitRegistry()
-        poster.post(a_uuid, conixposter.ConixPoster.SensorTypes.Zone_Temperature_Sensor, next(a_sensor), 'meter')
+        poster.post(a_uuid, conixposter.Sensors.Temperature, next(a_sensor), 'count')
+        poster.post(a_uuid, conixposter.Diagnostics.CPU_Usage, 50, 'percent')
 t = threading.Thread(target=sense_and_send)
 t.start()
