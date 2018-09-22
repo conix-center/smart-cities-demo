@@ -30,5 +30,6 @@ import conixposter
 
 poster = conixposter.ConixPoster("Some Unique ID")
 
-poster.post(sensor_uuid, conixposter.ConixPoster.SensorTypes.Temperature_Sensor, value, 'degC')
+poster.post(sensor_uuid, conixposter.Sensors.Temperature, value, 'degC')
+poster.post(sensor_uuid, conixposter.Diagnostics.Memory_Usage, value, 'percent')
 ```
