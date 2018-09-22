@@ -63,6 +63,7 @@ def message(client, userdata, message):
     else:
         timescale_timestamp = str(int(round(time.time()*1000000)))
 
+    timescale_timestamp = datetime.datetime.utcfromtimestamp(timescale_timestamp/1000000).isoformat()
     #extract all of the fields and post them individually
     dict_to_insert = {}
     #check of uuid
@@ -76,9 +77,9 @@ def message(client, userdata, message):
 
     for key in payload_lower:
         #is the key units or channel?
-        name = None
+        name = '_'
         if(key.find('units') > -1):
-            name = key.split('_')[:-1]
+            name = name.join(key.split('_')[:-1])
         else:
             name = key
 
