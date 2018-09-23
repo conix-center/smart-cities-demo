@@ -108,3 +108,16 @@ class ConixSubscriber:
             finalTableList = tableList
         
         print(finalTableList)
+
+        # query all the tables in the final table list
+        # make a dict with uuid as key and the info the user cares about
+        # as the values 
+
+        #now turn this list of final tables into a list of MQTT topics
+        #and subscribe through wave.
+
+def waveCallback(client, userdata, msg):
+    # on callback go into the dict, update the information that was sent
+    # in this message, then callback to the user with the updated dict
+    # for that uuid
+
