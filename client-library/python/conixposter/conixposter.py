@@ -6,14 +6,15 @@ import pint
 
 class ConixPoster:
 
-    def __init__(self, client_id, domain_url = 'stream.conixdb.io', domain_username='conix', domain_password='stream', domain_port='8883'):
+    def __init__(self, client_id, domain_url = 'stream.conixdb.io', domain_username='conix', domain_password='stream', domain_port='8883', wave_uri='localhost:410'):
         #start up a conix client
         self.client = wavemqtt.Client(str(client_id),
             mosquitto_url=domain_url,
             mosquitto_pass=domain_password,
             mosquitto_user=domain_username,
             mosquitto_port=domain_port,
-            mosquitto_tls = True)
+            mosquitto_tls = True,
+            wave_uri=wave_uri)
 
         self.registrationMap = {}
 
@@ -34,7 +35,7 @@ class ConixPoster:
             raise TypeError("sensor must by a predefined sensor type. Find your sensor/diagnostic type in conixposter.py or add one if it doesn't exist.")
 
         parsed_unit = None
-        if unit == 'ratio': 
+        if unit == 'ratio':
             parsed_unit = 'ratio'
         elif unit == 'percent' or unit == '%':
             parsed_unit = 'percent'
@@ -477,4 +478,4 @@ class Sensors(Enum):
        AHU_Bypass_Air_Flow = auto()
        AHU_Building_Static_Pressure = auto()
        AHU_Average_Zone_Temperature = auto()
-       AHU_Average_Exhaust_Air_Static_Pressure = auto()   
+       AHU_Average_Exhaust_Air_Static_Pressure = auto()
