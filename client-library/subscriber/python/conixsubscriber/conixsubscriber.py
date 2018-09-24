@@ -59,6 +59,10 @@ class ConixSubscriber:
             channel_lower.remove('uuid')
         if 'timestamp' in channel_lower:
             channel_lower.remove('timestamp')
+        
+        wildcard = False
+        if '*' in channel_lower:
+            wildcard = True
 
         self.subscribed_channels = channel_lower
         # now query each one of those tables to see if the table contains a
@@ -72,7 +76,7 @@ class ConixSubscriber:
             channel_set = set(channel_lower)
             column_set = set(columns)
             intersection = channel_set.intersection(column_set)
-            if (len(intersection) > 0):
+            if (len(intersection) > 0 or wildcard == True):
                 tableList.append(table)
 
         tableUUID = {}
@@ -164,7 +168,9 @@ class ConixSubscriber:
             self.subscribeData[result[columns.index('uuid')]]['uuid'] = result[columns.index('uuid')]
             self.subscribeData[result[columns.index('uuid')]]['timestamp'] = result[columns.index('timestamp')].timestamp()*1000000
             for column in columns:
-                if column in channel_lower:
+                if(wildcard == True):
+                    self.subscribeData[result[columns.index('uuid')]][column] = result[columns.index(column)]
+                elif column in channel_lower:
                     self.subscribeData[result[columns.index('uuid')]][column] = result[columns.index(column)]
 
         #make the initial callbacks to the user with the starting data
@@ -182,9 +188,13 @@ class ConixSubscriber:
         # on callback go into the dict, update the information that was sent
         # in this message, then callback to the user with the updated dict
         # for that uuid
+        wildcard = False
+        if '*' in self.subscribed_channels:
+            wildcard = True
+
         try:
             for key in msg.payload:
-                if key.lower() in self.subscribed_channels:
+                if key.lower() in self.subscribed_channels or wildcard == True:
                     self.subscribeData[msg.payload['uuid']][key.lower()] = msg.payload[key]
 
             self.callback(self.subscribeData[msg.payload['uuid']])

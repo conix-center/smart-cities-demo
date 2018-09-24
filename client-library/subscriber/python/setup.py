@@ -4,7 +4,7 @@ from io import open
 
 setup(
     name='conixsubscriber',  # Required
-    version='0.0.1',  # Required
+    version='0.0.2',  # Required
     description='Interface to a conix administrative domain on the subscriber side',  # Optional
     url='https://github.com/conix-center/smart-cities-demo/tree/master/client-library/subscriber/python/',  # Optional
     author='Joshua Adkins',  # Optional
