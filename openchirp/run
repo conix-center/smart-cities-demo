@@ -1,8 +1,12 @@
 #!/bin/bash
 # Starts the cmd-as-a service locally
 
+rm -f entity-1*
+rm -rf /tmp/waved
+
 ../wave/bin/waved --config=../conf/wave-nonsudo.toml &
-trap 'kill %1' SIGINT
+trap 'kill %1; killall python3' SIGINT
+sleep 2
 
 export SERVICE_ID="<OC_SERVICE_ID>"
 export SERVICE_TOKEN="<OC_SERVICE_TOKEN>"
