@@ -6,35 +6,132 @@ import pint
 import conixposter as cp
 from uuid import getnode as get_mac
 
+unknowns_file = "unknown_topics.txt"
+
 poster = cp.ConixPoster(get_mac(), wave_uri="localhost:4110")
 
-ureg = pint.UnitRegistry()
+undefinedtopics = {}
+def addunknowntopic(deviceid, topic):
+    undefinedtopics[topic] = True
+    topics = undefinedtopics.keys()
+    with open(unknowns_file, "w") as f:
+        f.write('\n'.join(topics))
+        f.write('\n')
 
-defaultsensor = (cp.Sensors.Temperature, 'count')
+def interpret_bool(input):
+    return bool(input)
+
+def interpret_onoff(input):
+    if bool(input):
+        return 'On'
+    else:
+        return 'Off'
+
+defaultsensor = None
 topic2sensor = {
-    "rawtx": defaultsensor,
-    "rawrx": defaultsensor,
-    "joinrequest": defaultsensor,
-    "battery": (cp.Sensors.Battery_Voltage, ureg.get_name('volt')),
-    "counter": defaultsensor,
-    "gas":  (cp.Sensors.Relative_Humidity, ureg.get_name('ohm')),
+    # LoRaWAN Devices
+    "rawtx": None,
+    "rawrx": None,
+    "joinrequest": (cp.Diagnostics.Network_Join_Indication, 'boolean'),
+
+    # SensorBug
+    "battery": (cp.Sensors.Battery_Voltage, 'volt'),
+    "counter": (cp.Diagnostics.Packet_Count, 'count'),
+    "gas":  (cp.Sensors.VOC, 'ohm'),
     "humidity": (cp.Sensors.Relative_Humidity, 'percent'),
-    "light": defaultsensor,
-    "pressure": defaultsensor,
+    "light": (cp.Sensors.Luminance, 'lux'),
+    "motion": (cp.Sensors.Motion, 'count'),
+    "noise": (cp.Sensors.Ambient_Noise, 'millivolt'),
     "pir": (cp.Sensors.PIR, 'count'),
-    "motion": defaultsensor,
-    "lightenabled": defaultsensor,
-    "micenabled": defaultsensor,
-    "motionenabled": defaultsensor,
-    "rate": defaultsensor,
-    "set_lightenabled": defaultsensor,
-    "set_micenabled": defaultsensor,
-    "set_motionenabled": defaultsensor,
-    "set_rate": defaultsensor,
-    "temperature": defaultsensor,
-    "temperature_f": defaultsensor,
-    "temp_top": (cp.Sensors.Water_Heater_Temperature_Top, ureg.get_name('degF')),
-    "temp_bottom": (cp.Sensors.Water_Heater_Temperature_Bottom, ureg.get_name('degF'))
+    "pressure": (cp.Sensors.Pressure, 'hectopascal'),
+    "temperature": (cp.Sensors.Temperature, 'degC'),
+
+    "lightenabled": (cp.Diagnostics.Light_Sensor_Enabled, 'boolean'),
+    "micenabled": (cp.Diagnostics.Microphone_Sensor_Enabled, 'boolean'),
+    "motionenabled": (cp.Diagnostics.Motion_Sensor_Enabled, 'boolean'),
+    "rate": (cp.Diagnostics.Report_Interval, 'second'),
+
+    "set_lightenabled": None,
+    "set_micenabled": None,
+    "set_motionenabled": None,
+    "set_rate": None,
+
+    # Sensorbug Service Generated
+    "temperature_f": (cp.Sensors.Temperature, 'degF'),
+    "noise_avg": None,
+    "noise_db": None,
+
+    # GridBallast
+    "grid_frequency": (cp.Sensors.Frequency, 'Hz'),
+    "heating_status": (cp.Diagnostics.Heating_Status, 'onoff'), # 0 or 1
+    "set_point": (cp.Sensors.Water_Heater_Temperature_Set_Point, 'degF'),
+    "temp_top": (cp.Sensors.Water_Heater_Temperature_Top, 'degF'),
+    "temp_bottom": (cp.Sensors.Water_Heater_Temperature_Bottom, 'degF'),
+    "mode": None,
+
+    # OC Gateway
+    "alert": None,
+    "alerts": None,
+    "altitude": None,
+    "coretemp": (cp.Diagnostics.Core_Temperature, 'degC'),
+    "disk_free": None,
+    "disk_total": (cp.Diagnostics.Storage_Total, 'gigabyte'),
+    "disk_used": None,
+    "disk_usedpercent": (cp.Diagnostics.Storage_Usage, 'percent'),
+    "gpsmapper_status": None,
+    "interval": None,
+    "latitude": None,
+    "load_15min": None,
+    "load_1min": (cp.Diagnostics.CPU_Usage, 'minute'),
+    "load_5min": None,
+    "longitude": None,
+    "math-evaluate-error": None,
+    "mem_available": None,
+    "mem_total": (cp.Diagnostics.Memory_Total, 'gigabyte'),
+    "mem_used": None,
+    "mem_usedpercent": (cp.Diagnostics.Memory_Usage, 'percent'),
+    "net_eth0_bytesrecv": None,
+    "net_eth0_bytessend": None,
+    "net_eth0_dropin": None,
+    "net_eth0_dropout": None,
+    "net_eth0_errin": None,
+    "net_eth0_errout": None,
+    "net_eth0_packetsrecv": None,
+    "net_eth0_packetssent": None,
+    "net_lo_bytesrecv": None,
+    "net_lo_bytessend": None,
+    "net_lo_dropin": None,
+    "net_lo_dropout": None,
+    "net_lo_errin": None,
+    "net_lo_errout": None,
+    "net_lo_packetsrecv": None,
+    "net_lo_packetssent": None,
+    "net_wlan0_bytesrecv": None,
+    "net_wlan0_bytessend": None,
+    "net_wlan0_dropin": None,
+    "net_wlan0_dropout": None,
+    "net_wlan0_errin": None,
+    "net_wlan0_errout": None,
+    "net_wlan0_packetsrecv": None,
+    "net_wlan0_packetssent": None,
+    "packets_received": None,
+    "packets_received_ok": None,
+    "rx_bandwidth": None,
+    "rx_crcstatus": None,
+    "rx_devaddr": None,
+    "rx_frequency": None,
+    "rx_lorasnr": None,
+    "rx_networkid": None,
+    "rx_rssi": None,
+    "rx_spreadingfactor": None,
+    "rx_timestamp": None,
+    "trigger": None,
+    "tx_bandwidth": None,
+    "tx_frequency": None,
+    "tx_power": None,
+    "tx_spreadingfactor": None,
+    "tx_timestamp": None,
+
 }
 
 # sense'n'send
@@ -43,7 +140,7 @@ import time
 
 
 def match_sensor_units(topic):
-    return topic2sensor.get(topic, defaultsensor)
+    return topic2sensor.get(topic, None)
 
 
 def sense_and_send():
@@ -57,7 +154,20 @@ def sense_and_send():
         part_topic = decoded['topic']
         part_value = decoded['payload']
 
-        sensor_type, sensor_units = match_sensor_units(part_topic)
+        sensor = match_sensor_units(part_topic)
+        if sensor is None:
+            print('# Skipping {} for deviceid {}'.format(part_topic, part_uuid))
+            addunknowntopic(part_uuid, part_topic)
+            continue
+        sensor_type, sensor_units = sensor
+
+        # Unify booleans to True or False
+        if sensor_units == 'boolean' or sensor_units == 'bool':
+            part_value = interpret_bool(part_value)
+        # Unify onoffs to On or Off
+        if sensor_units == 'onoff':
+            part_value = interpret_onoff(part_value)
+
         poster.post(part_uuid, sensor_type, part_value, sensor_units)
 
 

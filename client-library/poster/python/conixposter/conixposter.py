@@ -41,6 +41,10 @@ class ConixPoster:
             parsed_unit = 'percent'
         elif unit == 'number' or unit == 'count':
             parsed_unit = 'count'
+        elif unit == 'bool' or unit == 'boolean':
+            parsed_unit = 'boolean'
+        elif unit == 'onoff':
+            parsed_unit = 'onoff'
         elif isinstance(unit, str):
             ureg = pint.UnitRegistry()
             parsed_unit = ureg.parse_units(unit)
@@ -78,8 +82,17 @@ class Diagnostics(Enum):
        CPU_Usage = auto()
        Memory_Usage = auto()
        Memory_Total = auto()
+       Storage_Usage = auto()
+       Storage_Total = auto()
        Packet_Count = auto()
        Up_Time = auto()
+       Core_Temperature = auto()
+       Light_Sensor_Enabled = auto()
+       Microphone_Sensor_Enabled = auto()
+       Motion_Sensor_Enabled = auto()
+       Heating_Status = auto()
+       Report_Interval = auto()
+       Network_Join_Indication = auto()
 
 class Sensors(Enum):
        Zone_Temperature = auto()
@@ -482,3 +495,6 @@ class Sensors(Enum):
        # Addons
        Water_Heater_Temperature_Top = auto()
        Water_Heater_Temperature_Bottom = auto()
+       Water_Heater_Temperature_Set_Point = auto()
+       Ambient_Noise = auto()
+       VOC = auto() # Volatile Organic Compound
