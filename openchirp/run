@@ -1,0 +1,16 @@
+#!/bin/bash
+# Starts the cmd-as-a service locally
+
+../wave/bin/waved --config=../conf/wave-nonsudo.toml &
+trap 'kill %1' SIGINT
+
+export SERVICE_ID="<OC_SERVICE_ID>"
+export SERVICE_TOKEN="<OC_SERVICE_TOKEN>"
+export FRAMEWORK_SERVER="https://api.openchirp.io"
+export MQTT_SERVER="tls://mqtt.openchirp.io:8883"
+export LOG_LEVEL=5
+export CMD_PATH="./publisher.py"
+export CMD_ARGS=""
+
+./cmd-as-a-service/cmd-as-a-service &
+wait
