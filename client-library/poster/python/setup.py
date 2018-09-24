@@ -6,7 +6,7 @@ setup(
     name='conixposter',  # Required
     version='0.0.6',  # Required
     description='Interface to a conix administrative domain',  # Optional
-    url='https://github.com/conix-center/smart-cities-demo/tree/master/client-library/python/conixposter',  # Optional
+    url='https://github.com/conix-center/smart-cities-demo/tree/master/client-library/poster/python/conixposter',  # Optional
     author='Joshua Adkins',  # Optional
     author_email='adkins@berkeley.edu',  # Optional
     keywords='sample setuptools development access control post sensor data',  # Optional
