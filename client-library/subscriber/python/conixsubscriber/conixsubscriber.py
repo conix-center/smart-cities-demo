@@ -98,7 +98,7 @@ class ConixSubscriber:
             split_char = None;
             if condition.find('=') > -1:
                 split_char = '=';
-                later_op = operator.eq > -1;
+                later_op = operator.eq;
             elif condition.find('>'):
                 split_char = '>';
                 later_op = operator.gt;
