@@ -59,7 +59,7 @@ class ConixSubscriber:
             channel_lower.remove('uuid')
         if 'timestamp' in channel_lower:
             channel_lower.remove('timestamp')
-        
+
         wildcard = False
         if '*' in channel_lower:
             wildcard = True
@@ -168,7 +168,7 @@ class ConixSubscriber:
             self.subscribeData[result[columns.index('uuid')]]['uuid'] = result[columns.index('uuid')]
             self.subscribeData[result[columns.index('uuid')]]['timestamp'] = result[columns.index('timestamp')].timestamp()*1000000
             for column in columns:
-                if(wildcard == True):
+                if(wildcard == True and column != 'timestamp' and column != 'uuid'):
                     self.subscribeData[result[columns.index('uuid')]][column] = result[columns.index(column)]
                 elif column in channel_lower:
                     self.subscribeData[result[columns.index('uuid')]][column] = result[columns.index(column)]
