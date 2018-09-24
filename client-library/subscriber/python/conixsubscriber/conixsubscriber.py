@@ -6,6 +6,7 @@ import pint
 import psycopg2
 from psycopg2 import sql
 import operator
+import traceback
 
 class ConixSubscriber:
 
@@ -26,9 +27,11 @@ class ConixSubscriber:
             mosquitto_port=domain_port,
             mosquitto_tls = True,
             wave_uri=wave_uri,
-            on_message=waveCallback)
+            on_message=self.waveCallback)
 
         self.namespace = self.client.register(client_id)
+        print(self.client.b64hash)
+        print(self.namespace)
 
         #initialize a psycopg2 instance
         self.connection = psycopg2.connect(dbname=database_name,
@@ -57,6 +60,7 @@ class ConixSubscriber:
         if 'timestamp' in channel_lower:
             channel_lower.remove('timestamp')
 
+        self.subscribed_channels = channel_lower
         # now query each one of those tables to see if the table contains a
         # channel that we care about
         tableList = []
@@ -174,8 +178,15 @@ class ConixSubscriber:
             topic = s.join(table.split('-')[:-1])+'/'+ table.split('-')[-1]
             self.client.subscribe(self.namespace, topic)
 
-def waveCallback(client, userdata, msg):
-    # on callback go into the dict, update the information that was sent
-    # in this message, then callback to the user with the updated dict
-    # for that uuid
-    pass
+    def waveCallback(self,client, userdata, msg):
+        # on callback go into the dict, update the information that was sent
+        # in this message, then callback to the user with the updated dict
+        # for that uuid
+        try:
+            for key in msg.payload:
+                if key.lower() in self.subscribed_channels:
+                    self.subscribeData[msg.payload['uuid']][key.lower()] = msg.payload[key]
+
+            self.callback(self.subscribeData[msg.payload['uuid']])
+        except:
+            traceback.print_exc()
