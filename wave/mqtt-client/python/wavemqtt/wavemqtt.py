@@ -74,6 +74,10 @@ class Client:
         self.client.connect(mosquitto_url, int(mosquitto_port), 60)
         self.client.loop_start()
 
+        #we should store our proofs in memory to save time
+        self.publish_proofs = {}
+        self.decrypt_proofs = {}
+
     @property
     def hash(self):
         """
@@ -251,37 +255,49 @@ class Client:
         Publish the payload (any JSON-serializable object) to the topic on the given namespace
         """
         namespace = self.parsehash(namespace)
-        # build the proof for publishing on the topic
-        publish_proof = self.agent.BuildRTreeProof(wave3.BuildRTreeProofParams(
-            perspective = self.perspective,
-            namespace=namespace,
-            resyncFirst=True,
-            statements=[
-                wave3.RTreePolicyStatement(
-                    permissionSet=pset,
-                    permissions=["write"],
-                    resource=topic,
-                )
-            ]
-        ))
-        if publish_proof.error.code != 0:
-            raise Exception(publish_proof.error)
+        publish_proof = None
+        if topic not in self.publish_proofs:
+            # build the proof for publishing on the topic
+            publish_proof = self.agent.BuildRTreeProof(wave3.BuildRTreeProofParams(
+                perspective = self.perspective,
+                namespace=namespace,
+                resyncFirst=True,
+                statements=[
+                    wave3.RTreePolicyStatement(
+                        permissionSet=pset,
+                        permissions=["write"],
+                        resource=topic,
+                    )
+                ]
+            ))
+            if publish_proof.error.code != 0:
+                raise Exception(publish_proof.error)
+
+            self.publish_proofs[topic] = publish_proof
+        else:
+            publish_proof = self.publish_proofs[topic]
 
         #build the proof for decrypting messages on the topic
-        decrypt_proof = self.agent.BuildRTreeProof(wave3.BuildRTreeProofParams(
-            perspective = self.perspective,
-            namespace=namespace,
-            resyncFirst=True,
-            statements=[
-                wave3.RTreePolicyStatement(
-                    permissionSet=wave3.WaveBuiltinPSET,
-                    permissions=[wave3.WaveBuiltinE2EE],
-                    resource=topic,
-                )
-            ]
-        ))
-        if decrypt_proof.error.code != 0:
-            raise Exception(decrypt_proof.error)
+        decrypt_proof = None
+        if topic not in self.decrypt_proofs:
+            decrypt_proof = self.agent.BuildRTreeProof(wave3.BuildRTreeProofParams(
+                perspective = self.perspective,
+                namespace=namespace,
+                resyncFirst=True,
+                statements=[
+                    wave3.RTreePolicyStatement(
+                        permissionSet=wave3.WaveBuiltinPSET,
+                        permissions=[wave3.WaveBuiltinE2EE],
+                        resource=topic,
+                    )
+                ]
+            ))
+            if decrypt_proof.error.code != 0:
+                raise Exception(decrypt_proof.error)
+
+            self.decrypt_proofs[topic] = decrypt_proof
+        else:
+            decrypt_proof = self.decrypt_proofs[topic]
 
         # encrypt payload
         msg = bytes(json.dumps(payload), 'utf8')
@@ -302,7 +318,8 @@ class Client:
         print(self.entity_name, "publishing on", form_topic(namespace, topic))
         res = self.client.publish(form_topic(namespace, topic), payload=packed_payload, qos=1)
         #res = self.client.publish(form_topic(namespace, topic), payload="hello")
-        res.wait_for_publish()
+        #I don't think we should wait for publish
+        #res.wait_for_publish()
 
     def on_connect(self, client, userdata, flags, rc):
         """MQTT callback"""
