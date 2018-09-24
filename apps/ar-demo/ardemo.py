@@ -3,6 +3,8 @@
 import conixsubscriber
 import paho.mqtt.client as mqtt
 import configparser
+import json
+import datetime
 
 #import the postgres config file
 postgresParser = configparser.ConfigParser()
@@ -32,11 +34,11 @@ def publishCallback(data):
     packet_to_publish = {}
 
     #set the uuid
-    packet_to_publich['uuid'] = data['uuid']
+    packet_to_publish['uuid'] = data['uuid']
     del data['uuid']
 
-    packet_to_publich['timestamp'] = data['timestamp']
-    del data['uuid']
+    packet_to_publish['last update'] = datetime.datetime.utcfromtimestamp(data['timestamp']/1000000).strftime("%H:%M:%S")
+    del data['timestamp']
 
     #set the location
     packet_to_publish['position'] = {}
@@ -55,13 +57,31 @@ def publishCallback(data):
         if key.split('_')[-1] == 'units':
             pass
         else:
-            packet_to_publish['data'][key] =str(data[key] + '_' + data[key+'_units'])
+            name_str = None
+            try:
+                name_float = float(data[key])
+                name_str = "{}".format(name_float)
+            except:
+                try:
+                    name_int = int(data[key])
+                    name_str = "{}".format(name_int)
+                except:
+                    name_str = data[key]
+
+            if str(data[key+'_units']) == 'percent':
+                packet_to_publish['data'][key] = name_str + " %"
+            elif str(data[key+'_units']) == 'count':
+                packet_to_publish['data'][key + ' count'] = name_str
+            elif str(data[key+'_units']) == 'boolean':
+                packet_to_publish['data'][key] = name_str
+            else:
+                packet_to_publish['data'][key] = name_str + ' ' + str(data[key+'_units'])
 
     print(packet_to_publish)
     mqttclient.publish('ardemo',payload=json.dumps(packet_to_publish))
 
 #subscribe to the data we care about
-subscriber.subscribe(['*'],'location_origin_uuid=404', publishCallback)
+subscriber.subscribe(['location_local_x','location_local_y','location_local_z','Battery_Voltage','battery_voltage_units','luminance','luminance_units'],'location_origin_uuid=404', publishCallback)
 
 import time
 while True:
