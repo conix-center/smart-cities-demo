@@ -3,25 +3,25 @@ import sys
 import os
 import json
 import pint
-import conixposter
+import conixposter as cp
 from uuid import getnode as get_mac
 
-poster = conixposter.ConixPoster(get_mac(), wave_uri="localhost:4110")
+poster = cp.ConixPoster(get_mac(), wave_uri="localhost:4110")
 
 ureg = pint.UnitRegistry()
 
-defaultsensor = (conixposter.Sensors.Temperature, 'count')
+defaultsensor = (cp.Sensors.Temperature, 'count')
 topic2sensor = {
     "rawtx": defaultsensor,
     "rawrx": defaultsensor,
     "joinrequest": defaultsensor,
-    "battery": (conixposter.Sensors.Battery_Voltage, ureg.get_name('volt')),
+    "battery": (cp.Sensors.Battery_Voltage, ureg.get_name('volt')),
     "counter": defaultsensor,
-    "gas":  (conixposter.Sensors.Relative_Humidity, ureg.get_name('ohm')),
-    "humidity": (conixposter.Sensors.Relative_Humidity, 'percent'),
+    "gas":  (cp.Sensors.Relative_Humidity, ureg.get_name('ohm')),
+    "humidity": (cp.Sensors.Relative_Humidity, 'percent'),
     "light": defaultsensor,
     "pressure": defaultsensor,
-    "pir": (conixposter.Sensors.PIR, 'count'),
+    "pir": (cp.Sensors.PIR, 'count'),
     "motion": defaultsensor,
     "lightenabled": defaultsensor,
     "micenabled": defaultsensor,
@@ -33,6 +33,8 @@ topic2sensor = {
     "set_rate": defaultsensor,
     "temperature": defaultsensor,
     "temperature_f": defaultsensor,
+    "temp_top": (cp.Sensors.Water_Heater_Temperature_Top, ureg.get_name('degF')),
+    "temp_bottom": (cp.Sensors.Water_Heater_Temperature_Bottom, ureg.get_name('degF'))
 }
 
 # sense'n'send

@@ -479,3 +479,6 @@ class Sensors(Enum):
        AHU_Building_Static_Pressure = auto()
        AHU_Average_Zone_Temperature = auto()
        AHU_Average_Exhaust_Air_Static_Pressure = auto()
+       # Addons
+       Water_Heater_Temperature_Top = auto()
+       Water_Heater_Temperature_Bottom = auto()
