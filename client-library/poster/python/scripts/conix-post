@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+
+import conixposter
+import argparse
+parser = argparse.ArgumentParser()
+
+#each call must have a uuid first
+parser.add_argument("uuid",help="The unique identifier for a sensor",type=str)
+
+#we can then have multiple values with a sensor type, value and unit
+parser.add_argument('-w','--write', action='append', metavar=('type','value','unit'),nargs=3, help='At least one value must be posted as a type, value, unit tuple')
+
+#now parse the arguments we got and do the post
+args = parser.parse_args()
+print(args)
+
+poster=conixposter.ConixPoster(args.uuid)
+for data in args.write:
+    #extract sensor type
+    stype = data[0]
+    # search through all the enums to see if this exists
+    stype_enum = None
+    for s in conixposter.Diagnostics:
+        if s.name == stype:
+            stype_enum = s
+
+    for s in conixposter.Sensors:
+        if s.name == stype:
+            stype_enum = s
+
+    #extract value
+    value = None
+    try:
+        value = int(data[1])
+    except:
+        try:
+            value = float(data[1])
+        except:
+            value = data[1]
+
+    #extract units
+    units = data[2]
+
+poster.poster(args.uuid, stype_enum, value, units)
