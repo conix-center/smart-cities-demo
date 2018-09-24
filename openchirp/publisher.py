@@ -128,7 +128,7 @@ topic2sensor = {
     "trigger": None,
     "tx_bandwidth": (cp.Sensors.LoRa_Packet_TX_Bandwidth, 'Hz'),
     "tx_frequency": (cp.Sensors.LoRa_Packet_TX_Frequency, 'Hz'),
-    "tx_power": (cp.Sensors.LoRa_Packet_TX_Power, 'dB'), # dBm
+    "tx_power": (cp.Sensors.LoRa_Packet_TX_Power, 'dBm'),
     "tx_spreadingfactor": (cp.Sensors.LoRa_Packet_TX_Spreading_Factor, 'number'),
     "tx_timestamp": (cp.Sensors.LoRa_Packet_TX_Timestamp, 'nanosecond'),
 }

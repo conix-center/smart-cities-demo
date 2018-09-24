@@ -41,6 +41,8 @@ class ConixPoster:
             parsed_unit = 'percent'
         elif unit == 'number' or unit == 'count':
             parsed_unit = 'count'
+        elif unit == 'dBm':
+            parsed_unit = 'dBm'
         elif unit == 'bool' or unit == 'boolean':
             parsed_unit = 'boolean'
         elif unit == 'onoff':
