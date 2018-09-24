@@ -15,8 +15,13 @@ subscriber = conixsubscriber.ConixSubscriber("ar_demo",
                                             database_password = postgresConf['password'],
                                             database_host = postgresConf['host'])
 
+
+def onConnect():
+    print('Connected!')
+
 #setup an mqtt instance
 mqttclient = mqtt.Client(client_id='ar_demo', clean_session=True)
+mqttclient.on_connect = onConnect
 mqttclient.connect('localhost', 1883, 60)
 mqttclient.loop_start()
 
