@@ -4,7 +4,7 @@ from io import open
 
 setup(
     name='conixposter',  # Required
-    version='0.0.6',  # Required
+    version='0.0.7',  # Required
     description='Interface to a conix administrative domain',  # Optional
     url='https://github.com/conix-center/smart-cities-demo/tree/master/client-library/poster/python/conixposter',  # Optional
     author='Joshua Adkins',  # Optional
