@@ -1,0 +1,3 @@
+[submodule "openchirp/cmd-as-a-service"]
+	path = openchirp/cmd-as-a-service
+	url = https://github.com/OpenChirp/cmd-as-a-service.git
