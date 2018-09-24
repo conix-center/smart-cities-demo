@@ -12,5 +12,33 @@ parser.add_argument('-w','--write', action='append', metavar=('type','value','un
 
 #now parse the arguments we got and do the post
 args = parser.parse_args()
-
 print(args)
+
+poster=conixposter.ConixPoster(args.uuid)
+for data in args.write:
+    #extract sensor type
+    stype = data[0]
+    # search through all the enums to see if this exists
+    stype_enum = None
+    for s in conixposter.Diagnostics:
+        if s.name == stype:
+            stype_enum = s
+
+    for s in conixposter.Sensors:
+        if s.name == stype:
+            stype_enum = s
+
+    #extract value
+    value = None
+    try:
+        value = int(data[1])
+    except:
+        try:
+            value = float(data[1])
+        except:
+            value = data[1]
+
+    #extract units
+    units = data[2]
+
+poster.poster(args.uuid, stype_enum, value, units)
