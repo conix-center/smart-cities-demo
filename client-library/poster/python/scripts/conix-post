@@ -2,6 +2,7 @@
 
 import conixposter
 import argparse
+import difflib
 parser = argparse.ArgumentParser()
 
 #each call must have a uuid first
@@ -12,21 +13,39 @@ parser.add_argument('-w','--write', action='append', metavar=('type','value','un
 
 #now parse the arguments we got and do the post
 args = parser.parse_args()
-print(args)
 
-poster=conixposter.ConixPoster(args.uuid)
+poster = conixposter.ConixPoster(args.uuid)
 for data in args.write:
     #extract sensor type
     stype = data[0]
     # search through all the enums to see if this exists
     stype_enum = None
     for s in conixposter.Diagnostics:
-        if s.name == stype:
+        if s.name.lower() == stype.lower():
             stype_enum = s
+            break
 
     for s in conixposter.Sensors:
-        if s.name == stype:
+        if s.name.lower() == stype.lower():
             stype_enum = s
+            break
+
+    if stype_enum is None:
+        diagnostic_strings = [x.name.lower() for x in conixposter.Diagnostics]
+        sensor_strings = [x.name.lower() for x in conixposter.Sensors]
+        diagnostic_matches = difflib.get_close_matches(stype,diagnostic_strings)
+        sensor_matches = difflib.get_close_matches(stype,sensor_strings)
+
+        if len(diagnostic_matches) > 0:
+            print("Found close matches:")
+            for match in diagnostic_matches:
+                print("{}".format(match))
+        if len(sensor_matches) > 0:
+            print("Found close matches:")
+            for match in sensor_matches:
+                print("{}".format(match))
+
+        raise TypeError('Sensor Type (the first argument to --write) must match a predefined type')
 
     #extract value
     value = None
@@ -41,4 +60,4 @@ for data in args.write:
     #extract units
     units = data[2]
 
-poster.poster(args.uuid, stype_enum, value, units)
+    poster.post(args.uuid, stype_enum, value, units)
