@@ -3,7 +3,7 @@ Description=Publish Permamote/Gateway data using conix poster
 After=mosquitto.service
 
 [Service]
-ExecStart=/home/ubuntu/smart-cities-demo/client-library/poster/python/examples/permamote_poster.py
+ExecStart=/home/ubuntu/smart-cities-demo/permamote/permamote-poster.py
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
