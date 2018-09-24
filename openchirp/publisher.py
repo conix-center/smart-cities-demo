@@ -6,25 +6,42 @@ import pint
 import conixposter
 from uuid import getnode as get_mac
 
-# also serves as subscribe topic
-# a_uuid = "8608a83a-b7a2-11e8-8755-0cc47a0f7777"
-
-# PUBLISHER
-
-def sensor():
-    i = 0
-    while True:
-        i = i+1
-        yield i
-
-
-a_sensor = sensor()
-
 poster = conixposter.ConixPoster(get_mac(), wave_uri="localhost:4110")
+
+ureg = pint.UnitRegistry()
+
+defaultsensor = (conixposter.Sensors.Temperature, 'count')
+topic2sensor = {
+    "rawtx": defaultsensor,
+    "rawrx": defaultsensor,
+    "joinrequest": defaultsensor,
+    "battery": (conixposter.Sensors.Battery_Voltage, ureg.get_name('volt')),
+    "counter": defaultsensor,
+    "gas":  (conixposter.Sensors.Relative_Humidity, ureg.get_name('ohm')),
+    "humidity": (conixposter.Sensors.Relative_Humidity, 'percent'),
+    "light": defaultsensor,
+    "pressure": defaultsensor,
+    "pir": (conixposter.Sensors.PIR, 'count'),
+    "motion": defaultsensor,
+    "lightenabled": defaultsensor,
+    "micenabled": defaultsensor,
+    "motionenabled": defaultsensor,
+    "rate": defaultsensor,
+    "set_lightenabled": defaultsensor,
+    "set_micenabled": defaultsensor,
+    "set_motionenabled": defaultsensor,
+    "set_rate": defaultsensor,
+    "temperature": defaultsensor,
+    "temperature_f": defaultsensor,
+}
 
 # sense'n'send
 import threading
 import time
+
+
+def match_sensor_units(topic):
+    return topic2sensor.get(topic, defaultsensor)
 
 
 def sense_and_send():
@@ -35,9 +52,11 @@ def sense_and_send():
 
         decoded = json.loads(line)
         part_uuid = decoded['deviceid']
+        part_topic = decoded['topic']
         part_value = decoded['payload']
-        poster.post(part_uuid, conixposter.Sensors.Temperature, part_value, 'count')
-        ureg = pint.UnitRegistry()
+
+        sensor_type, sensor_units = match_sensor_units(topic)
+        poster.post(part_uuid, sensor_type, part_value, sensor_units)
 
 
 t = threading.Thread(target=sense_and_send)
