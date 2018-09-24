@@ -84,6 +84,8 @@ class Diagnostics(Enum):
        Memory_Total = auto()
        Storage_Usage = auto()
        Storage_Total = auto()
+       Network_RX_Count = auto()
+       Network_TX_Count = auto()
        Packet_Count = auto()
        Up_Time = auto()
        Core_Temperature = auto()
@@ -93,6 +95,7 @@ class Diagnostics(Enum):
        Heating_Status = auto()
        Report_Interval = auto()
        Network_Join_Indication = auto()
+       System_Alert = auto()
 
 class Sensors(Enum):
        Zone_Temperature = auto()
@@ -498,3 +501,16 @@ class Sensors(Enum):
        Water_Heater_Temperature_Set_Point = auto()
        Ambient_Noise = auto()
        VOC = auto() # Volatile Organic Compound
+       LoRa_Packet_RX_Bandwidth = auto()
+       LoRa_Packet_RX_Frequency = auto()
+       LoRa_Packet_RX_SNR = auto()
+       LoRa_Packet_RX_RSSI = auto()
+       LoRa_Packet_RX_Timestamp = auto()
+       LoRa_Packet_RX_Spreading_Factor = auto()
+       LoRa_Packet_TX_Bandwidth = auto()
+       LoRa_Packet_TX_Frequency = auto()
+       LoRa_Packet_TX_SNR = auto()
+       LoRa_Packet_TX_RSSI = auto()
+       LoRa_Packet_TX_Timestamp = auto()
+       LoRa_Packet_TX_Spreading_Factor = auto()
+       LoRa_Packet_TX_Power = auto()
