@@ -3,6 +3,7 @@
 import conixposter
 import argparse
 import difflib
+import time
 parser = argparse.ArgumentParser()
 
 #each call must have a uuid first
@@ -61,3 +62,4 @@ for data in args.write:
     units = data[2]
 
     poster.post(args.uuid, stype_enum, value, units)
+    time.sleep(1)
