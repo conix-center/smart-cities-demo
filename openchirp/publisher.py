@@ -55,7 +55,7 @@ def sense_and_send():
         part_topic = decoded['topic']
         part_value = decoded['payload']
 
-        sensor_type, sensor_units = match_sensor_units(topic)
+        sensor_type, sensor_units = match_sensor_units(part_topic)
         poster.post(part_uuid, sensor_type, part_value, sensor_units)
 
 
