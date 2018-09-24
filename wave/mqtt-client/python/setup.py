@@ -4,7 +4,7 @@ from io import open
 
 setup(
     name='wavemqtt',  # Required
-    version='0.0.2',  # Required
+    version='0.0.3',  # Required
     description='A client for wave-mqtt integration',  # Optional
     url='https://github.com/conix-center/smart-cities-demo/tree/master/wave/mqtt-client/python/wavemqtt',  # Optional
     author='Gabe Fierro',  # Optional
