@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
+from multiprocessing import Process, Queue
 import json
 import pint
 import conixposter as cp
@@ -8,10 +9,11 @@ from uuid import getnode as get_mac
 
 unknowns_file = "unknown_topics.txt"
 
-poster = cp.ConixPoster(get_mac(), wave_uri="localhost:4110")
-
 undefinedtopics = {}
 def addunknowntopic(deviceid, topic):
+    if topic in undefinedtopics:
+        return
+
     undefinedtopics[topic] = True
     topics = undefinedtopics.keys()
     with open(unknowns_file, "w") as f:
@@ -133,22 +135,25 @@ topic2sensor = {
     "tx_timestamp": (cp.Sensors.LoRa_Packet_TX_Timestamp, 'nanosecond'),
 }
 
-# sense'n'send
-import threading
-import time
-
-
 def match_sensor_units(topic):
     return topic2sensor.get(topic, None)
 
 
-def sense_and_send():
-    while True:
-        line = sys.stdin.readline()
+class Publisher:
+    def __init__(self, id, q):
+        self.q = q
+        self.poster = cp.ConixPoster(str(get_mac())+"-"+str(id), wave_uri="localhost:4110")
+
+    def process_line(self, line):
         if line == "":
             return
-
         decoded = json.loads(line)
+        if not 'deviceid' in decoded:
+            return
+        if not 'topic' in decoded:
+            return
+        if not 'payload' in decoded:
+            return
         part_uuid = decoded['deviceid']
         part_topic = decoded['topic']
         part_value = decoded['payload']
@@ -156,8 +161,8 @@ def sense_and_send():
         sensor = match_sensor_units(part_topic)
         if sensor is None:
             print('# Skipping {} for deviceid {}'.format(part_topic, part_uuid))
-            addunknowntopic(part_uuid, part_topic)
-            continue
+            # addunknowntopic(part_uuid, part_topic)
+            return
         sensor_type, sensor_units = sensor
 
         # Unify booleans to True or False
@@ -167,8 +172,27 @@ def sense_and_send():
         if sensor_units == 'onoff':
             part_value = interpret_onoff(part_value)
 
-        poster.post(part_uuid, sensor_type, part_value, sensor_units)
+        self.poster.post(part_uuid, sensor_type, part_value, sensor_units)
 
+    def Run(self):
+        while True:
+            self.process_line(self.q.get())
 
-t = threading.Thread(target=sense_and_send)
-t.start()
+number_of_threads = 2
+
+def proc(id, q):
+    pub = Publisher(id, q)
+    pub.Run()
+
+if __name__ == '__main__':
+    q = Queue()
+    ps = []
+
+    for i in range(number_of_threads):
+        ps.append(Process(target=proc, args=(i, q,)))
+
+    for p in ps:
+        p.start()
+
+    while True:
+            q.put(sys.stdin.readline())
