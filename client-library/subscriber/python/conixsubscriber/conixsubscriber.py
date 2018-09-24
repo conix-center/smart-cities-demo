@@ -34,7 +34,7 @@ class ConixSubscriber:
     """
     Current only takes single equals to condition
     """
-    def subscribe(channels, condition, callback):
+    def subscribe(self, channels, condition, callback):
         self.callback = callback
         
         # use psycopg2 to get a list of tables in the database
