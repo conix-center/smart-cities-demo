@@ -1,4 +1,4 @@
-#!/usr/bin/evn python3
+#!/usr/bin/env python3
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'conixsubscriber'))
 import conixsubscriber
