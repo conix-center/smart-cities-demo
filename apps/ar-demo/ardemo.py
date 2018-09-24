@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import conixsubscriber
 import paho.mqtt.client as mqtt
 import configparser
@@ -17,10 +19,10 @@ subscriber = conixsubscriber.ConixSubscriber("ar_demo",
 
 
 def onConnect():
-    print('Connected!')
+    print('Other client Connected!')
 
 #setup an mqtt instance
-mqttclient = mqtt.Client(client_id='ar_demo', clean_session=True)
+mqttclient = mqtt.Client(client_id='ardemo', clean_session=True)
 mqttclient.on_connect = onConnect
 mqttclient.connect('localhost', 1883, 60)
 mqttclient.loop_start()
@@ -47,19 +49,19 @@ def publishCallback(data):
     if 'location_local_z' in data:
         packet_to_publish['position']['z'] = data['location_local_z']
         del data['location_local_z']
-    
+
     packet_to_publish['data'] = {}
     for key in data:
         if key.split('_')[-1] == 'units':
             pass
         else:
             packet_to_publish['data'][key] =str(data[key] + '_' + data[key+'_units'])
-   
+
     print(packet_to_publish)
     mqttclient.publish('ardemo',payload=json.dumps(packet_to_publish))
 
 #subscribe to the data we care about
-subscriber.subscribe(['*'],'location_origin_uuid=404', callback)
+subscriber.subscribe(['*'],'location_origin_uuid=404', publishCallback)
 
 import time
 while True:
