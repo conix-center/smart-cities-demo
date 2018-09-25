@@ -47,10 +47,10 @@ def on_message(client, userdata, msg):
             poster.post(device_id, conixposter.Sensors.Pressure, data[topic], 'millibar', timestamp)
         elif (topic == 'humidity_percent') :
             poster.post(device_id, conixposter.Sensors.Humidity, data[topic], 'percent', timestamp)
-        elif (topic == 'volt') :
-            poster.post(device_id, conixposter.Diagnostics.Solar_Panel_Voltage, data['solar_voltage'], 'volt', timestamp)
-            poster.post(device_id, conixposter.Diagnostics.Secondary_Battery_Voltage, data['secondary_voltage'], 'volt', timestamp)
+        elif (topic == 'voltage') :
             poster.post(device_id, conixposter.Diagnostics.Battery_Voltage, data['primary_voltage'], 'volt', timestamp)
+            poster.post(device_id, conixposter.Diagnostics.Panel_Voltage, data['solar_voltage'], 'volt', timestamp)
+            poster.post(device_id, conixposter.Diagnostics.Secondary_Battery_Voltage, data['secondary_voltage'], 'volt', timestamp)
         elif (topic == 'free_ot_buffers') :
             poster.post(device_id, conixposter.Diagnostics.Memory_Usage, 128 - data[topic], 'count', timestamp)
     except Exception as e:
