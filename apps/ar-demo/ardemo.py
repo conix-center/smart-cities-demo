@@ -35,25 +35,24 @@ def publishCallback(data):
 
     #set the uuid
     packet_to_publish['uuid'] = data['uuid']
-    del data['uuid']
 
     packet_to_publish['last update'] = datetime.datetime.utcfromtimestamp(data['timestamp']/1000000).strftime("%H:%M:%S")
-    del data['timestamp']
 
     #set the location
     packet_to_publish['position'] = {}
     if 'location_local_x' in data:
         packet_to_publish['position']['x'] = data['location_local_x']
-        del data['location_local_x']
     if 'location_local_y' in data:
         packet_to_publish['position']['y'] = data['location_local_y']
-        del data['location_local_y']
     if 'location_local_z' in data:
         packet_to_publish['position']['z'] = data['location_local_z']
-        del data['location_local_z']
 
     packet_to_publish['data'] = {}
+    ignore_list = ['uuid','timestamp','location_local_x','location_local_z','location_local_y','location_origin_uuid']
     for key in data:
+        if key in ignore_list:
+            continue
+
         if key.split('_')[-1] == 'units':
             pass
         else:
