@@ -194,7 +194,7 @@ class ConixSubscriber:
 
         try:
             for key in msg.payload:
-                if key.lower() in self.subscribed_channels or wildcard == True:
+                if key.lower() in self.subscribed_channels or wildcard == True or key.lower() == 'timestamp':
                     self.subscribeData[msg.payload['uuid']][key.lower()] = msg.payload[key]
 
             self.callback(self.subscribeData[msg.payload['uuid']])
