@@ -20,31 +20,39 @@ def on_message(client, userdata, msg):
         data = json.loads(str(msg.payload, 'utf-8'))
         device_type = data['device']
         device_id = data['_meta']['device_id']
-        topic = data['topic']
         timestamp = data['_meta']['timestamp']
+        topic = None
+        if 'topic' in data:
+            topic = data['topic']
         print(device_type)
         print(device_id)
         print(topic)
 
+        if (device_type == 'gateway_metrics') :
+            poster.post(device_id, conixposter.Diagnostics.Up_Time, data['uptime'], 'millisecond', timestamp)
+            poster.post(device_id, conixposter.Diagnostics.CPU_Usage, data['load']['5m'], 'millisecond', timestamp)
+            poster.post(device_id, conixposter.Diagnostics.Memory_Usage, data['mem']['total'] - data['mem']['free'], 'kilobyte', timestamp)
+            poster.post(device_id, conixposter.Diagnostics.Memory_Free, data['mem']['total'], 'kilobyte', timestamp)
+
+
         if (topic == 'light_lux') :
             poster.post(device_id, conixposter.Sensors.Luminance, data[topic], 'lux', timestamp)
-        if (topic == 'light_color_cct_k') :
+        elif (topic == 'light_color_cct_k') :
             poster.post(device_id, conixposter.Sensors.Light_Color_CCT, data[topic], 'kelvin', timestamp)
-        if (topic == 'motion') :
+        elif (topic == 'motion') :
             poster.post(device_id, conixposter.Sensors.Motion, data[topic], 'count', timestamp)
-        if (topic == 'temperature_c') :
+        elif (topic == 'temperature_c') :
             poster.post(device_id, conixposter.Sensors.Temperature, data[topic], 'degC', timestamp)
-        if (topic == 'pressure_mbar') :
+        elif (topic == 'pressure_mbar') :
             poster.post(device_id, conixposter.Sensors.Pressure, data[topic], 'millibar', timestamp)
-        if (topic == 'humidity_percent') :
+        elif (topic == 'humidity_percent') :
             poster.post(device_id, conixposter.Sensors.Humidity, data[topic], 'percent', timestamp)
-        if (topic == 'volt') :
+        elif (topic == 'volt') :
             poster.post(device_id, conixposter.Diagnostics.Solar_Panel_Voltage, data['solar_voltage'], 'volt', timestamp)
             poster.post(device_id, conixposter.Diagnostics.Secondary_Battery_Voltage, data['secondary_voltage'], 'volt', timestamp)
             poster.post(device_id, conixposter.Diagnostics.Battery_Voltage, data['primary_voltage'], 'volt', timestamp)
-        if (topic == 'free_ot_buffers') :
-            poster.post(  device_id, conixposter.Diagnostics.Memory_Usage, 128 - data[topic], 'count', timestamp)
-
+        elif (topic == 'free_ot_buffers') :
+            poster.post(device_id, conixposter.Diagnostics.Memory_Usage, 128 - data[topic], 'count', timestamp)
     except Exception as e:
         print(e)
 
