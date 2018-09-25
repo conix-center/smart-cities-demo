@@ -74,7 +74,7 @@ topic2sensor = {
     # OC Gateway
     "alert": (cp.Diagnostics.System_Alert, 'boolean'),
     "alerts": None,
-    "altitude": None,
+    "altitude": (cp.Sensors.Location_GPS_Altitude, 'meter'),
     "coretemp": (cp.Diagnostics.Core_Temperature, 'degC'),
     "disk_free": None,
     "disk_total": (cp.Diagnostics.Storage_Total, 'gigabyte'),
