@@ -60,11 +60,13 @@ class Client:
                 wave3.PublishEntityParams(DER=self.entity.PublicDER))
 
         # create mqtt client
+        self.topic_list = []
         self.client = mqtt.Client(client_id=entity_name, clean_session=True)
         self._connected = False
         self._pending = []
         self._call_on_message = on_message
         self.client.on_connect = self.on_connect
+        self.client.on_disconnect = self.on_disconnect
         self.client.on_message = self.on_message
         self.client.username_pw_set(mosquitto_user, mosquitto_pass)
         if mosquitto_tls is True and mosquitto_capath is None:
@@ -247,6 +249,7 @@ class Client:
         namespace = self.parsehash(namespace)
         while not self._connected:
             time.sleep(1)
+        self.topic_list.append(form_topic(namespace,topic))
         print(self.entity_name, 'subscribing to',form_topic(namespace, topic))
         self.client.subscribe(form_topic(namespace, topic))
 
@@ -325,6 +328,14 @@ class Client:
         """MQTT callback"""
         print('connected!')
         self._connected = True
+        for topic in self.topic_list:
+            print(self.entity_name, 'subscribing to', topic)
+            self.client.subscribe(topic)
+
+    def on_disconnect(self, client, userdata, flags, rc):
+        """MQTT callback"""
+        print('lost connection!')
+        self._connected = False
 
     def on_message(self, client, userdata, msg):
         """MQTT callback for handling messages. Decodes/unpacks"""
