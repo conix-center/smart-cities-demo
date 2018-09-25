@@ -29,8 +29,8 @@ def on_message(client, userdata, msg):
         print(topic)
 
         if (device_type == 'gateway_metrics') :
-            poster.post(device_id, conixposter.Diagnostics.Up_Time, data['uptime'], 'millisecond', timestamp)
-            poster.post(device_id, conixposter.Diagnostics.CPU_Usage, data['load']['5m'], 'millisecond', timestamp)
+            poster.post(device_id, conixposter.Diagnostics.Up_Time, data['uptime'], 'second', timestamp)
+            poster.post(device_id, conixposter.Diagnostics.CPU_Usage, data['load']['5m'], 'count', timestamp)
             poster.post(device_id, conixposter.Diagnostics.Memory_Usage, data['mem']['total'] - data['mem']['free'], 'kilobyte', timestamp)
             poster.post(device_id, conixposter.Diagnostics.Memory_Free, data['mem']['total'], 'kilobyte', timestamp)
 
