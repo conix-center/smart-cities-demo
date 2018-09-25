@@ -82,7 +82,7 @@ class Diagnostics(Enum):
        Battery_Percent = auto()
        Battery_Voltage = auto()
        Secondary_Battery_Voltage = auto()
-       Solar Panel_Voltage = auto()
+       Panel_Voltage = auto()
        CPU_Usage = auto()
        Memory_Usage = auto()
        Memory_Total = auto()
@@ -501,6 +501,7 @@ class Sensors(Enum):
        AHU_Average_Zone_Temperature = auto()
        AHU_Average_Exhaust_Air_Static_Pressure = auto()
        # Addons
+       Location_GPS_Altitude = auto()
        Water_Heater_Temperature_Top = auto()
        Water_Heater_Temperature_Bottom = auto()
        Water_Heater_Temperature_Set_Point = auto()
