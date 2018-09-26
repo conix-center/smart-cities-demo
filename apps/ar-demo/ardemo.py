@@ -65,7 +65,7 @@ def publishCallback(data):
             name_str = None
             try:
                 name_float = float(data[key])
-                name_str = "{}".format(name_float)
+                name_str = "{:.2f}".format(name_float)
             except:
                 try:
                     name_int = int(data[key])
