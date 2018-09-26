@@ -32,6 +32,12 @@ mqttclient.loop_start()
 #setup the data callback to repost the data that we care about in the right format
 def publishCallback(data):
     packet_to_publish = {}
+    packet_to_publish['name'] = ""
+    orientation = {}
+    orientation['alpha'] = 0.0
+    orientation['beta'] = 0.0
+    orientation['gamma'] = 0.0
+    packet_to_publish['orientation'] = orientation
 
     #set the uuid
     packet_to_publish['uuid'] = data['uuid']
