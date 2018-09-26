@@ -12,7 +12,7 @@ postgresParser.read('postgres.ini')
 postgresConf = postgresParser['DEFAULT']
 
 #setup a subscriber
-subscriber = conixsubscriber.ConixSubscriber("ar_demo",
+subscriber = conixsubscriber.ConixSubscriber("ar_demo_gateway",
                                             database_username = postgresConf['username'],
                                             database_port = postgresConf['port'],
                                             database_name = postgresConf['database'],
@@ -24,7 +24,7 @@ def onConnect():
     print('Other client Connected!')
 
 #setup an mqtt instance
-mqttclient = mqtt.Client(client_id='ardemo', clean_session=True)
+mqttclient = mqtt.Client(client_id='ardemo-gateway', clean_session=True)
 mqttclient.on_connect = onConnect
 mqttclient.connect('localhost', 1883, 60)
 mqttclient.loop_start()
