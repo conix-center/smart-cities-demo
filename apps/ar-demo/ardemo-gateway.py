@@ -31,6 +31,10 @@ mqttclient.loop_start()
 
 #setup the data callback to repost the data that we care about in the right format
 def publishCallback(data):
+    
+    if 'memory_usage' not in data or 'cpu_usage' not in data:
+        return
+
     packet_to_publish = {}
 
     #set the uuid
